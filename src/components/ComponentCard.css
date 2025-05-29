@@ -119,7 +119,12 @@
   backdrop-filter: blur(10px);
 }
 
+.rating-badge {
+  height: 30px;
+}
+
 .star {
+  font-size: 0.8rem;
   margin-right: 4px;
 }
 

@@ -95,7 +95,7 @@ const StatsSection = () => {
                                 {stat.number.toLocaleString()}
                                 {stat.suffix}
                             </div>
-                            <div className="stat-label">{stat.label}</div>
+                            <div className="stat-label" style={{color: "white"}}>{stat.label}</div>
                             <div className="stat-glow"></div>
                         </div>
                     ))}

@@ -143,10 +143,10 @@ const CustomizableKits = () => {
                                 <p className="header-subtitle">Build your perfect electronics kit by selecting individual components</p>
                             </div>
                         </div>
-                        <p className="header-description">
+                        {/* <p className="header-description">
                             Choose from our premium collection of electronics components and watch them magically float into your
                             custom kit basket! Create exactly what you need for your next project.
-                        </p>
+                        </p> */}
                     </div>
                 </div>
             </div>

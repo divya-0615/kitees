@@ -1,10 +1,14 @@
 "use client"
 
+import { useState } from "react"
 import { useCart } from "../contexts/CartContext"
 import "./ProjectDetailModal.css"
 
 const ProjectDetailModal = ({ project, isOpen, onClose }) => {
   const { addToCart } = useCart()
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  if (!isOpen || !project) return null
 
   const handleAddToCart = () => {
     addToCart({
@@ -12,20 +16,28 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
       name: project.title,
       price: project.price,
       quantity: 1,
-      image: project.image,
+      image: project.images[0],
       type: "project",
     })
     onClose()
   }
 
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % project.images.length)
+  }
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + project.images.length) % project.images.length)
+  }
+
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
       case "Beginner":
-        return "#10b981"
+        return "#059669"
       case "Intermediate":
-        return "#f59e0b"
+        return "#d97706"
       case "Advanced":
-        return "#ef4444"
+        return "#dc2626"
       default:
         return "#6b7280"
     }
@@ -33,39 +45,75 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
 
   const totalComponentsPrice = project.components.reduce((sum, comp) => sum + comp.price * comp.quantity, 0)
 
-  if (!isOpen) return null
-
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content project-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content project-detail-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2 className="modal-title">{project.title}</h2>
           <button className="modal-close" onClick={onClose}>
-            ✕
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
           </button>
         </div>
 
         <div className="modal-body">
           <div className="modal-grid">
-            {/* Image and Info Section */}
+            {/* Image Section */}
             <div className="modal-image-section">
-              <div className="modal-image-container">
-                <img src={project.image || "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg"} alt={project.title} className="modal-image" />
+              <div className="image-container">
+                <img
+                  src={project.images[currentImageIndex] || "/placeholder.svg"}
+                  alt={`${project.title} - Image ${currentImageIndex + 1}`}
+                  className="modal-image"
+                />
+
+                {/* Navigation Buttons */}
+                {project.images.length > 1 && (
+                  <>
+                    <button className="nav-btn prev-btn" onClick={prevImage}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="15,18 9,12 15,6"></polyline>
+                      </svg>
+                    </button>
+                    <button className="nav-btn next-btn" onClick={nextImage}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="9,18 15,12 9,6"></polyline>
+                      </svg>
+                    </button>
+                  </>
+                )}
+
+                {/* Image Indicators */}
+                {project.images.length > 1 && (
+                  <div className="image-indicators">
+                    {project.images.map((_, index) => (
+                      <button
+                        key={index}
+                        className={`indicator ${index === currentImageIndex ? "active" : ""}`}
+                        onClick={() => setCurrentImageIndex(index)}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* Badges */}
                 <div
-                  className="modal-difficulty-badge"
+                  className="difficulty-badge-modal"
                   style={{ backgroundColor: getDifficultyColor(project.difficulty) }}
                 >
                   {project.difficulty}
                 </div>
-                <div className="modal-rating-badge">
+                <div className="rating-badge-modal">
                   <span className="star">⭐</span>
                   {project.rating}
                 </div>
               </div>
 
-              <div className="project-stats">
+              <div className="project-stats-modal">
                 <div className="stat-item">
-                  <div className="stat-icon">🕐</div>
+                  <div className="stat-icon">⏱️</div>
                   <div className="stat-content">
                     <div className="stat-label">Duration</div>
                     <div className="stat-value">{project.duration}</div>
@@ -78,13 +126,23 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
                     <div className="stat-value">{project.rating}/5.0</div>
                   </div>
                 </div>
+                <div className="stat-item">
+                  <div className="stat-icon">👥</div>
+                  <div className="stat-content">
+                    <div className="stat-label">Reviews</div>
+                    <div className="stat-value">{project.reviews}</div>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Details Section */}
             <div className="modal-details-section">
               <div className="modal-price-section">
-                <div className="modal-price">${project.price}</div>
+                <div className="modal-price">
+                  <span className="price-currency">$</span>
+                  <span className="price-value">{project.price}</span>
+                </div>
                 <p className="modal-description">{project.description}</p>
               </div>
 
@@ -122,18 +180,22 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
                     </tbody>
                     <tfoot>
                       <tr className="total-row">
-                        <td>Total Value</td>
+                        <td>
+                          <strong>Total Value</strong>
+                        </td>
                         <td></td>
-                        <td>${totalComponentsPrice.toFixed(2)}</td>
+                        <td>
+                          <strong>${totalComponentsPrice.toFixed(2)}</strong>
+                        </td>
                       </tr>
                     </tfoot>
                   </table>
                 </div>
               </div>
 
-              <button onClick={handleAddToCart} className="modal-add-btn project-btn">
+              <button onClick={handleAddToCart} className="modal-add-btn">
                 <span className="btn-icon">🛒</span>
-                Buy Project Kit
+                Add to Cart - ${project.price}
               </button>
             </div>
           </div>
@@ -142,6 +204,18 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
           <div className="modal-full-description">
             <h3 className="description-title">Project Overview</h3>
             <p className="description-text">{project.fullDescription}</p>
+
+            <div className="learning-outcomes">
+              <h4>What You'll Learn</h4>
+              <div className="outcomes-list">
+                {project.learningOutcomes.map((outcome, index) => (
+                  <div key={index} className="outcome-item">
+                    <span className="outcome-icon">🎯</span>
+                    {outcome}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>

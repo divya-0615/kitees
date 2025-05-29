@@ -29,25 +29,6 @@ const HeroSection = () => {
                             Explore Kits
                             <span className="btn-icon">→</span>
                         </button>
-                        <button className="btn-secondary">
-                            Watch Demo
-                            <span className="play-icon">▶</span>
-                        </button>
-                    </div>
-
-                    <div className="hero-stats">
-                        <div className="stat-item">
-                            <span className="stat-number">50+</span>
-                            <span className="stat-label">Premium Kits</span>
-                        </div>
-                        <div className="stat-item">
-                            <span className="stat-number">10K+</span>
-                            <span className="stat-label">Happy Makers</span>
-                        </div>
-                        <div className="stat-item">
-                            <span className="stat-number">100+</span>
-                            <span className="stat-label">Project Guides</span>
-                        </div>
                     </div>
                 </div>
 

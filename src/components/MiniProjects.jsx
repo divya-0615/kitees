@@ -12,10 +12,10 @@ const miniProjects = [
     title: "Smart Home Temperature Monitor",
     price: 45.99,
     images: [
-      "/placeholder.svg?height=400&width=500",
-      "/placeholder.svg?height=400&width=500",
-      "/placeholder.svg?height=400&width=500",
-      "/placeholder.svg?height=400&width=500",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
     ],
     description: "Build a WiFi-enabled temperature monitoring system with real-time alerts and data logging.",
     difficulty: "Beginner",
@@ -53,9 +53,9 @@ const miniProjects = [
     title: "LED Matrix Display Clock",
     price: 38.99,
     images: [
-      "/placeholder.svg?height=400&width=500",
-      "/placeholder.svg?height=400&width=500",
-      "/placeholder.svg?height=400&width=500",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
     ],
     description: "Create a stunning LED matrix clock with customizable animations and weather display.",
     difficulty: "Intermediate",
@@ -93,10 +93,10 @@ const miniProjects = [
     title: "Bluetooth Robot Car",
     price: 67.99,
     images: [
-      "/placeholder.svg?height=400&width=500",
-      "/placeholder.svg?height=400&width=500",
-      "/placeholder.svg?height=400&width=500",
-      "/placeholder.svg?height=400&width=500",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
     ],
     description: "Build and program a smartphone-controlled robot car with obstacle avoidance.",
     difficulty: "Intermediate",
@@ -134,9 +134,9 @@ const miniProjects = [
     title: "Voice-Controlled LED Strip",
     price: 52.99,
     images: [
-      "/placeholder.svg?height=400&width=500",
-      "/placeholder.svg?height=400&width=500",
-      "/placeholder.svg?height=400&width=500",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
     ],
     description: "Create ambient lighting that responds to voice commands and music beats.",
     difficulty: "Advanced",
@@ -173,9 +173,9 @@ const miniProjects = [
     title: "Arduino Weather Station",
     price: 42.99,
     images: [
-      "/placeholder.svg?height=400&width=500",
-      "/placeholder.svg?height=400&width=500",
-      "/placeholder.svg?height=400&width=500",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
     ],
     description: "Build a comprehensive weather monitoring station with multiple sensors and data logging.",
     difficulty: "Beginner",
@@ -205,10 +205,10 @@ const miniProjects = [
     title: "Smart Security System",
     price: 89.99,
     images: [
-      "/placeholder.svg?height=400&width=500",
-      "/placeholder.svg?height=400&width=500",
-      "/placeholder.svg?height=400&width=500",
-      "/placeholder.svg?height=400&width=500",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
     ],
     description: "Build an advanced security system with motion detection, camera, and smartphone alerts.",
     difficulty: "Advanced",
@@ -245,16 +245,15 @@ const MiniProjects = () => {
   const { addToCart } = useCart()
   const [selectedProject, setSelectedProject] = useState(null)
   const [showCustomProject, setShowCustomProject] = useState(false)
-  const [currentImageIndex, setCurrentImageIndex] = useState({})
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
       case "Beginner":
-        return "#10b981"
+        return "#059669"
       case "Intermediate":
-        return "#f59e0b"
+        return "#d97706"
       case "Advanced":
-        return "#ef4444"
+        return "#dc2626"
       default:
         return "#6b7280"
     }
@@ -262,33 +261,13 @@ const MiniProjects = () => {
 
   const getCategoryColor = (category) => {
     const colors = {
-      IoT: "#3b82f6",
-      Display: "#8b5cf6",
-      Robotics: "#4f46e5",
-      "Smart Home": "#ec4899",
-      Security: "#ef4444",
+      IoT: "#2563eb",
+      Display: "#7c3aed",
+      Robotics: "#4338ca",
+      "Smart Home": "#db2777",
+      Security: "#dc2626",
     }
     return colors[category] || "#6b7280"
-  }
-
-  const handleImageChange = (projectId, imageIndex) => {
-    setCurrentImageIndex((prev) => ({
-      ...prev,
-      [projectId]: imageIndex,
-    }))
-  }
-
-  const addProjectToCart = (project) => {
-    addToCart({
-      id: `project-${project.id}`,
-      name: project.title,
-      price: project.price,
-      quantity: 1,
-      image: project.images[0],
-      type: "project",
-      category: project.category,
-      components: project.components,
-    })
   }
 
   return (
@@ -297,128 +276,69 @@ const MiniProjects = () => {
         <div className="mini-projects-container">
           {/* Projects Header */}
           <div className="projects-header">
-            <div className="header-icon bounce">🚀</div>
-            <h2>Mini Projects</h2>
+            <div className="header-badge">
+              <span className="badge-icon">🚀</span>
+              <span className="badge-text">Featured Projects</span>
+            </div>
+            <h2>Mini Projects Collection</h2>
             <p className="mini-projects-subtitle">
-              Ready-to-build projects with step-by-step guides and all components included
+              Professional-grade electronics projects with comprehensive guides, quality components, and expert support
             </p>
           </div>
 
           {/* Projects Grid */}
           <div className="projects-grid">
             {miniProjects.map((project, index) => (
-              <div
-                key={project.id}
-                className="project-card"
-                style={{ "--delay": `${index * 0.1}s` }}
-                onClick={() => setSelectedProject(project)}
-              >
-                {/* Project Images with Carousel */}
-                <div className="project-images">
-                  {project.images.map((image, imageIndex) => (
-                    <img
-                      key={imageIndex}
-                      src={image || "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg"}
-                      alt={`${project.title} - Image ${imageIndex + 1}`}
-                      className={`project-image ${(currentImageIndex[project.id] || 0) === imageIndex ? "active" : ""}`}
-                    />
-                  ))}
-
-                  {/* Carousel Dots */}
-                  {project.images.length > 1 && (
-                    <div className="carousel-dots">
-                      {project.images.map((_, imageIndex) => (
-                        <div
-                          key={imageIndex}
-                          className={`carousel-dot ${(currentImageIndex[project.id] || 0) === imageIndex ? "active" : ""
-                            }`}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleImageChange(project.id, imageIndex)
-                          }}
-                        />
-                      ))}
-                    </div>
-                  )}
+              <div key={project.id} className="project-card" style={{ "--delay": `${index * 0.1}s` }}>
+                {/* Project Image */}
+                <div className="project-image-container">
+                  <img src={project.images[0] || "/placeholder.svg"} alt={project.title} className="project-image" />
+                  <div className="category-badge" style={{ backgroundColor: getCategoryColor(project.category) }}>
+                    {project.category}
+                  </div>
+                  <div className="rating-badge">
+                    <span className="star">⭐</span>
+                    <span>{project.rating}</span>
+                  </div>
                 </div>
 
                 {/* Project Info */}
                 <div className="project-info">
                   <div className="project-header">
                     <h3>{project.title}</h3>
-                    <div className="project-meta">
-                      <span
-                        className={`project-difficulty difficulty-${project.difficulty.toLowerCase()}`}
-                        style={{
-                          backgroundColor: `${getDifficultyColor(project.difficulty)}20`,
-                          color: getDifficultyColor(project.difficulty),
-                        }}
-                      >
-                        {project.difficulty}
-                      </span>
-                      <span
-                        className="project-category"
-                        style={{
-                          backgroundColor: `${getCategoryColor(project.category)}20`,
-                          color: getCategoryColor(project.category),
-                        }}
-                      >
-                        {project.category}
-                      </span>
-                    </div>
+                    <span
+                      className={`difficulty-badge difficulty-${project.difficulty.toLowerCase()}`}
+                      style={{
+                        backgroundColor: `${getDifficultyColor(project.difficulty)}15`,
+                        color: getDifficultyColor(project.difficulty),
+                        borderColor: getDifficultyColor(project.difficulty),
+                      }}
+                    >
+                      {project.difficulty}
+                    </span>
                   </div>
 
                   <p className="project-description">{project.description}</p>
 
                   <div className="project-stats">
                     <div className="stat">
-                      <span className="stat-icon">⭐</span>
-                      <span>
-                        {project.rating} ({project.reviews} reviews)
-                      </span>
-                    </div>
-                    <div className="stat">
                       <span className="stat-icon">⏱️</span>
                       <span>{project.duration}</span>
                     </div>
-                  </div>
-
-                  <div className="project-components">
-                    <h4>Included Components:</h4>
-                    <div className="components-list">
-                      {project.components.slice(0, 3).map((component, i) => (
-                        <span key={i} className="component-tag">
-                          {component.name}
-                        </span>
-                      ))}
-                      {project.components.length > 3 && (
-                        <span className="component-tag more">+{project.components.length - 3} more</span>
-                      )}
+                    <div className="stat">
+                      <span className="stat-icon">📦</span>
+                      <span>{project.components.length} components</span>
                     </div>
                   </div>
 
                   <div className="project-footer">
-                    <div className="project-price">${project.price}</div>
-                    <div className="project-actions">
-                      <button
-                        className="view-details-btn"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setSelectedProject(project)
-                        }}
-                      >
-                        View Details
-                      </button>
-                      <button
-                        className="add-to-cart-btn"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          addProjectToCart(project)
-                        }}
-                      >
-                        Add to Cart
-                      </button>
+                    <div className="project-price">
+                      <span className="price-currency">$</span>
+                      <span className="price-value">{project.price}</span>
                     </div>
+                    <button className="view-details-btn" onClick={() => setSelectedProject(project)}>
+                      View Details
+                    </button>
                   </div>
                 </div>
               </div>
@@ -427,16 +347,22 @@ const MiniProjects = () => {
 
           {/* Custom Project Section */}
           <div className="custom-project-section">
-            <div className="custom-project-icon">💡</div>
-            <h3>Have Your Own Project Idea?</h3>
-            <p>
-              Can't find the perfect project? Create a custom project request and our experts will help you build
-              exactly what you need with the right components and guidance.
-            </p>
-            <button className="create-project-btn" onClick={() => setShowCustomProject(true)}>
-              <span className="btn-icon">✨</span>
-              Create Custom Project
-            </button>
+            <div className="custom-project-content">
+              <div className="custom-project-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" />
+                </svg>
+              </div>
+              <h3>Custom Project Development</h3>
+              <p>
+                Need something specific? Our engineering team specializes in creating custom electronics projects
+                tailored to your exact requirements with professional documentation and support.
+              </p>
+              <button className="create-project-btn" onClick={() => setShowCustomProject(true)}>
+                Start Custom Project
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -445,13 +371,15 @@ const MiniProjects = () => {
       {selectedProject && (
         <ProjectDetailModal
           project={selectedProject}
+          isOpen={!!selectedProject}
           onClose={() => setSelectedProject(null)}
-          onAddToCart={addProjectToCart}
         />
       )}
 
       {/* Custom Project Modal */}
-      {showCustomProject && <CustomProjectModal onClose={() => setShowCustomProject(false)} />}
+      {showCustomProject && (
+        <CustomProjectModal isOpen={showCustomProject} onClose={() => setShowCustomProject(false)} />
+      )}
     </>
   )
 }

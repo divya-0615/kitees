@@ -6,7 +6,7 @@
 .kit-builder-header {
   background: linear-gradient(135deg, #f0fdf4, #ecfdf5, #f0fdfa);
   border-radius: 24px;
-  padding: 48px;
+  padding: 3rem;
   border: 2px solid #10b981;
   box-shadow: 0 25px 50px rgba(16, 185, 129, 0.1);
   margin-bottom: 48px;
