@@ -1,0 +1,140 @@
+.features-section {
+  padding: 100px 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.features-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.features-header {
+  text-align: center;
+  margin-bottom: 80px;
+}
+
+.features-header h2 {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.features-header p {
+  font-size: 1.3rem;
+  color: #7f8c8d;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
+}
+
+.feature-card {
+  background: white;
+  padding: 40px 30px;
+  border-radius: 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.feature-card:hover .feature-hover-effect {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.feature-hover-effect {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, var(--accent-color), transparent);
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.6s ease;
+  z-index: 1;
+  border-radius: 50%;
+}
+
+.feature-icon {
+  font-size: 4rem;
+  margin-bottom: 25px;
+  position: relative;
+  z-index: 2;
+  display: inline-block;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--accent-color), rgba(255, 255, 255, 0.1));
+  border-radius: 50%;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.feature-card h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 15px;
+  position: relative;
+  z-index: 2;
+  transition: color 0.3s ease;
+}
+
+.feature-card:hover h3 {
+  color: white;
+}
+
+.feature-card p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #7f8c8d;
+  position: relative;
+  z-index: 2;
+  transition: color 0.3s ease;
+}
+
+.feature-card:hover p {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 768px) {
+  .features-section {
+    padding: 80px 15px;
+  }
+
+  .features-header h2 {
+    font-size: 2.5rem;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .feature-card {
+    padding: 30px 20px;
+  }
+
+  .feature-icon {
+    font-size: 3rem;
+    padding: 15px;
+  }
+}

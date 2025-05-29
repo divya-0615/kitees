@@ -1,14 +1,21 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Homepage from './Pages/homepage'; // Make sure this path is correct
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { CartProvider } from "./contexts/CartContext.jsx";
+import HomePage from "./Pages/HomePage.jsx";
+import CheckoutPage from "./Pages/CheckoutPage.jsx";
+import "./App.css";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Homepage />} />
-      </Routes>
-    </Router>
+    <CartProvider>
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+          </Routes>
+        </div>
+      </Router>
+    </CartProvider>
   );
 }
 
