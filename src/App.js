@@ -3,19 +3,28 @@ import { CartProvider } from "./contexts/CartContext.jsx";
 import HomePage from "./Pages/Home";
 import CheckoutPage from "./Pages/CheckoutPage.jsx";
 import "./App.css";
+import { AuthProvider } from "./contexts/AuthContext.jsx";
+import LoginPage from "./Authentication/LoginPage.jsx";
+import SignupPage from "./Authentication/SignupPage.jsx";
+import MyOrders from "./Pages/MyOrders.jsx";
 
 function App() {
   return (
-    <CartProvider>
-      <Router>
-        <div className="App">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-          </Routes>
-        </div>
-      </Router>
-    </CartProvider>
+    <AuthProvider>
+      <CartProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/myorders" element={<MyOrders />} />
+            </Routes>
+          </div>
+        </Router>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 

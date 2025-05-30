@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState } from "react"
+import { createContext, useContext, useState, useEffect } from "react"
 
 const CartContext = createContext()
 
@@ -14,6 +14,25 @@ export const useCart = () => {
 
 export const CartProvider = ({ children }) => {
     const [items, setItems] = useState([])
+
+    // Load cart from localStorage on component mount
+    useEffect(() => {
+        const savedCart = localStorage.getItem("kitees-cart")
+        if (savedCart) {
+            try {
+                const parsedCart = JSON.parse(savedCart)
+                setItems(parsedCart)
+            } catch (error) {
+                console.error("Error loading cart from localStorage:", error)
+                localStorage.removeItem("kitees-cart")
+            }
+        }
+    }, [])
+
+    // Save cart to localStorage whenever items change
+    useEffect(() => {
+        localStorage.setItem("kitees-cart", JSON.stringify(items))
+    }, [items])
 
     const addToCart = (newItem) => {
         setItems((currentItems) => {
@@ -41,7 +60,7 @@ export const CartProvider = ({ children }) => {
                         name: "Custom Electronics Kit",
                         price: newItem.price,
                         quantity: 1,
-                        image: "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+                        image: "/placeholder.svg?height=100&width=100",
                         type: "custom-kit",
                         components: [newItem],
                     }
@@ -53,11 +72,11 @@ export const CartProvider = ({ children }) => {
 
                 if (existingItem) {
                     return currentItems.map((item) =>
-                        item.id === newItem.id ? { ...item, quantity: item.quantity + newItem.quantity } : item,
+                        item.id === newItem.id ? { ...item, quantity: item.quantity + (newItem.quantity || 1) } : item,
                     )
                 }
 
-                return [...currentItems, newItem]
+                return [...currentItems, { ...newItem, quantity: newItem.quantity || 1 }]
             }
         })
     }
@@ -102,14 +121,15 @@ export const CartProvider = ({ children }) => {
 
     const clearCart = () => {
         setItems([])
+        localStorage.removeItem("kitees-cart")
     }
 
     const getTotalPrice = () => {
-        return items.reduce((total, item) => total + item.price * item.quantity, 0)
+        return items.reduce((total, item) => total + (item.price || 0) * (item.quantity || 1), 0)
     }
 
     const getTotalItems = () => {
-        return items.reduce((total, item) => total + item.quantity, 0)
+        return items.reduce((total, item) => total + (item.quantity || 1), 0)
     }
 
     return (

@@ -1,133 +1,108 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
+import React from "react"
 import "./TestimonialsSection.css"
+const testimonials = [
+    {
+        id: 1,
+        name: "Sarah Chen",
+        role: "Electronics Engineer",
+        company: "TechCorp",
+        image: "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png",
+        rating: 5,
+        text: "Kitees has been my go-to source for electronics components. The quality is exceptional, and their custom kit builder saved me hours of sourcing individual parts. Highly recommended!",
+    },
+    {
+        id: 2,
+        name: "Michael Rodriguez",
+        role: "Maker & Educator",
+        company: "MakerSpace Academy",
+        image: "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png",
+        rating: 5,
+        text: "As an educator, I love how Kitees makes electronics accessible to students. The project guides are clear, and the components are always high quality. My students have built amazing projects!",
+    },
+    {
+        id: 3,
+        name: "Emily Watson",
+        role: "IoT Developer",
+        company: "Smart Solutions Inc",
+        image: "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png",
+        rating: 5,
+        text: "The IoT kits from Kitees are fantastic! Everything works perfectly out of the box, and the documentation is thorough. It's helped me prototype ideas much faster.",
+    },
+]
 
-const TestimonialsSection = () => {
-    const [currentTestimonial, setCurrentTestimonial] = useState(0)
+// Star Icon Component
+const StarIcon = ({ filled }) => (
+    <svg
+        className={`testinomal-section-star-icon ${filled ? "testinomal-section-star-filled" : ""}`}
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <path
+            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+            fill={filled ? "currentColor" : "none"}
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        />
+    </svg>
+)
 
-    const testimonials = [
-        {
-            name: "Sarah Johnson",
-            role: "Electronics Student",
-            image: "/placeholder.svg?height=80&width=80",
-            rating: 5,
-            text: "Kitees transformed my understanding of electronics. The step-by-step guides are incredible, and the components are top quality. I've built 5 projects already!",
-        },
-        {
-            name: "Mike Chen",
-            role: "Robotics Engineer",
-            image: "/placeholder.svg?height=80&width=80",
-            rating: 5,
-            text: "As a professional engineer, I appreciate the quality and precision of Kitees products. Perfect for prototyping and teaching my team new concepts.",
-        },
-        {
-            name: "Emma Davis",
-            role: "Maker & Educator",
-            image: "/placeholder.svg?height=80&width=80",
-            rating: 5,
-            text: "I use Kitees in my classroom to teach kids about electronics. The projects are engaging, safe, and educational. My students love them!",
-        },
-        {
-            name: "Alex Rodriguez",
-            role: "Hobbyist",
-            image: "/placeholder.svg?height=80&width=80",
-            rating: 5,
-            text: "Started as a complete beginner and now I'm building complex IoT projects. Kitees made the learning curve smooth and enjoyable.",
-        },
-        {
-            name: "Dr. Lisa Park",
-            role: "University Professor",
-            image: "/placeholder.svg?height=80&width=80",
-            rating: 5,
-            text: "Excellent educational resource. I recommend Kitees to all my students. The documentation is thorough and the support is outstanding.",
-        },
-    ]
+// Quote Icon Component
+const QuoteIcon = () => (
+    <svg className="testinomal-section-quote-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-quote w-8 h-8 text-blue-400 mb-4"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"></path><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"></path></svg>
+)
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)
-        }, 5000)
-
-        return () => clearInterval(interval)
-    }, [testimonials.length])
-
-    const nextTestimonial = () => {
-        setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)
-    }
-
-    const prevTestimonial = () => {
-        setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)
-    }
-
+export default function TestimonialsSection() {
     return (
-        <section className="testimonials-section">
-            <div className="testimonials-container">
-                <div className="testimonials-header">
-                    <h2>What Our Makers Say</h2>
-                    <p>Join thousands of satisfied customers worldwide</p>
-                </div>
+        <section className="testinomal-section-testimonials-section">
+            <div className="testinomal-section-container">
+                <motion.div
+                    initial={{ opacity: 0, y: 50 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8 }}
+                    className="testinomal-section-header"
+                >
+                    <h2 className="testinomal-section-title">What Our Customers Say</h2>
+                    <p className="testinomal-section-subtitle">Join thousands of satisfied makers and engineers worldwide</p>
+                </motion.div>
 
-                <div className="testimonials-carousel">
-                    <button className="carousel-btn prev-btn" onClick={prevTestimonial}>
-                        ‹
-                    </button>
-
-                    <div className="testimonial-card">
-                        <div className="testimonial-content">
-                            <div className="quote-icon">"</div>
-                            <p className="testimonial-text">{testimonials[currentTestimonial].text}</p>
-                            <div className="rating">
-                                {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
-                                    <span key={i} className="star">
-                                        ★
-                                    </span>
+                <div className="testinomal-section-testimonials-grid">
+                    {testimonials.map((testimonial, index) => (
+                        <motion.div
+                            key={testimonial.id}
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6, delay: index * 0.2 }}
+                            whileHover={{ scale: 1.05 }}
+                            className="testinomal-section-testimonial-card"
+                        >
+                            <div className="testinomal-section-rating">
+                                {Array.from({ length: testimonial.rating }).map((_, i) => (
+                                    <StarIcon key={i} filled={true} />
                                 ))}
                             </div>
-                        </div>
 
-                        <div className="testimonial-author">
-                            <img
-                                src={testimonials[currentTestimonial].image || "/placeholder.svg"}
-                                alt={testimonials[currentTestimonial].name}
-                                className="author-image"
-                            />
-                            <div className="author-info">
-                                <h4>{testimonials[currentTestimonial].name}</h4>
-                                <p>{testimonials[currentTestimonial].role}</p>
+                            <QuoteIcon />
+
+                            <p className="testinomal-section-testimonial-text">"{testimonial.text}"</p>
+
+                            <div className="testinomal-section-author">
+                                <img src={testimonial.image || "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"} alt={testimonial.name} className="testinomal-section-author-image" />
+                                <div className="testinomal-section-author-info">
+                                    <div className="testinomal-section-author-name">{testimonial.name}</div>
+                                    <div className="testinomal-section-author-role">{testimonial.role}</div>
+                                    <div className="testinomal-section-author-company">{testimonial.company}</div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <button className="carousel-btn next-btn" onClick={nextTestimonial}>
-                        ›
-                    </button>
-                </div>
-
-                <div className="testimonial-dots">
-                    {testimonials.map((_, index) => (
-                        <button
-                            key={index}
-                            className={`dot ${index === currentTestimonial ? "active" : ""}`}
-                            onClick={() => setCurrentTestimonial(index)}
-                        />
-                    ))}
-                </div>
-
-                <div className="testimonials-grid">
-                    {testimonials.map((testimonial, index) => (
-                        <div key={index} className={`testimonial-mini ${index === currentTestimonial ? "active" : ""}`}>
-                            <img src={testimonial.image || "/placeholder.svg"} alt={testimonial.name} />
-                            <div className="mini-content">
-                                <h5>{testimonial.name}</h5>
-                                <p>{testimonial.role}</p>
-                            </div>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
             </div>
         </section>
     )
 }
-
-export default TestimonialsSection
