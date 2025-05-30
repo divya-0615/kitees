@@ -9,7 +9,7 @@ import CustomizableKits from "../components/CustomizableKits"
 import MiniProjects from "../components/MiniProjects"
 import TestimonialsSection from "../components/TestimonialsSection"
 import NewsletterSection from "../components/NewsletterSection"
-import "./HomePage.css"
+import "./Home.css"
 
 const HomePage = () => {
     const [activeTab, setActiveTab] = useState("available-kits")
