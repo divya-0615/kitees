@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { CartProvider } from "./contexts/CartContext.jsx";
-import HomePage from "./Pages/HomePage.jsx";
+import HomePage from "./Pages/HomePage";
 import CheckoutPage from "./Pages/CheckoutPage.jsx";
 import "./App.css";
 
