@@ -10,12 +10,22 @@ const ProtectedRoute = ({ children, message = "Please login to access this page"
     const navigate = useNavigate()
     const [showMessage, setShowMessage] = useState(false)
 
+    const [time, setTime] = useState(10);
+
+    useEffect(() => {
+        if (time === 0) return;
+        const timer = setTimeout(() => {
+            setTime((prevTime) => prevTime - 1);
+        }, 1000);
+        return () => clearTimeout(timer); // Clean up on unmount or time change
+    }, [time]);
+
     useEffect(() => {
         if (!loading && !currentUser) {
             setShowMessage(true)
             const timer = setTimeout(() => {
                 navigate("/login")
-            }, 3000)
+            }, 10000)
 
             return () => clearTimeout(timer)
         }
@@ -45,7 +55,7 @@ const ProtectedRoute = ({ children, message = "Please login to access this page"
                             Create Account
                         </button>
                     </div>
-                    <p className="redirect-notice">Redirecting to login page in 3 seconds...</p>
+                    <p className="redirect-notice">Redirecting to login page in {time} seconds...</p>
                 </div>
             </div>
         )

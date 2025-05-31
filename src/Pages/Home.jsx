@@ -22,13 +22,11 @@ const HomePage = () => {
         <div className="homepage">
             <Header />
             <HeroSection />
-            <StatsSection />
             <FeaturesSection />
-
-            <main className="main-content">
+            <main className="main-content" id="explore-kits">
                 <div className="container">
                     <div className="section-header fade-in" textAlign="center">
-                        <h2 className="section-title" style={{justifyContent: "center"}}>Explore Our Electronics Universe</h2>
+                        <h2 className="section-title" style={{ justifyContent: "center" }}>Explore Our Electronics Universe</h2>
                         <p className="section-description">
                             From ready-made kits to custom components and exciting mini-projects, discover everything you need to
                             bring your electronic innovations to life with cutting-edge technology and premium quality.
@@ -79,9 +77,9 @@ const HomePage = () => {
                     </div>
                 </div>
             </main>
-
             <TestimonialsSection />
             <NewsletterSection />
+            <StatsSection />
             <Footer />
         </div>
     )

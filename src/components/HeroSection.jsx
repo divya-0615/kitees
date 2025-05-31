@@ -1,5 +1,7 @@
 import "./HeroSection.css"
 
+import heroimg from "./herosectionimg.png"
+import handleScrollAtAny from "../contexts/ScrollAtAny"
 const HeroSection = () => {
     return (
         <section className="hero-section">
@@ -25,7 +27,7 @@ const HeroSection = () => {
                     </p>
 
                     <div className="hero-buttons">
-                        <button className="btn-primary">
+                        <button className="btn-primary" onClick={() => handleScrollAtAny("explore-kits")}>
                             Explore Kits
                             <span className="btn-icon">→</span>
                         </button>
@@ -38,6 +40,7 @@ const HeroSection = () => {
                         <div className="component component-2"></div>
                         <div className="component component-3"></div>
                         <div className="component component-4"></div>
+                        <img src={heroimg} className="" alt="hero-section" style={{ position: "fixed", top: "-20px", left: "-50px", zIndex: 100000 }} />
                         <div className="wire wire-1"></div>
                         <div className="wire wire-2"></div>
                         <div className="wire wire-3"></div>

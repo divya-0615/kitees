@@ -42,19 +42,19 @@ const FeaturesSection = () => {
 
     return (
         <section className="features-section">
-            <div className="features-container">
-                <div className="features-header">
+            <div className="features-section-features-container">
+                <div className="features-section-features-header">
                     <h2>Why Choose Kitees?</h2>
                     <p>Everything you need to succeed in electronics and robotics</p>
                 </div>
 
-                <div className="features-grid">
+                <div className="features-section-features-grid">
                     {features.map((feature, index) => (
-                        <div key={index} className="feature-card" style={{ "--accent-color": feature.color }}>
-                            <div className="feature-icon">{feature.icon}</div>
+                        <div key={index} className="features-section-feature-card" style={{ "--accent-color": feature.color }}>
+                            <div className="features-section-feature-icon">{feature.icon}</div>
                             <h3>{feature.title}</h3>
                             <p>{feature.description}</p>
-                            <div className="feature-hover-effect"></div>
+                            <div className="features-section-feature-hover-effect"></div>
                         </div>
                     ))}
                 </div>

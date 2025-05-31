@@ -1,4 +1,5 @@
 import "./Footer.css"
+import handleScrollAtAny from "../contexts/ScrollAtAny"
 
 // Icon components to replace Lucide React icons
 const ZapIcon = () => (
@@ -141,7 +142,7 @@ export default function Footer() {
                         </div>
                         <p className="footer-section-company-description">
                             Your trusted partner for electronics kits, components, and innovative projects. Empowering makers and
-                            engineers worldwide since 2020.
+                            engineers worldwide since 2025.
                         </p>
                         {/* <div className="footer-section-social-links">
                             <a href="#" className="footer-section-social-link">
@@ -164,19 +165,19 @@ export default function Footer() {
                         <h3 className="footer-section-footer-heading">Quick Links</h3>
                         <ul className="footer-section-footer-links">
                             <li>
-                                <a href="#" className="footer-section-footer-link">
+                                <span href="#" className="footer-section-footer-link" onClick={() => handleScrollAtAny("explore-kits")}>
                                     Available Kits
-                                </a>
+                                </span>
                             </li>
                             <li>
-                                <a href="#" className="footer-section-footer-link">
+                                <span href="#" className="footer-section-footer-link" onClick={() => handleScrollAtAny("explore-kits")}>
                                     Custom Components
-                                </a>
+                                </span>
                             </li>
                             <li>
-                                <a href="#" className="footer-section-footer-link">
+                                <span href="#" className="footer-section-footer-link" onClick={() => handleScrollAtAny("explore-kits")}>
                                     Mini Projects
-                                </a>
+                                </span>
                             </li>
                             <li>
                                 <a href="/contact-us" className="footer-section-footer-link">
@@ -191,9 +192,9 @@ export default function Footer() {
                         <h3 className="footer-section-footer-heading">Customer Support</h3>
                         <ul className="footer-section-footer-links">
                             <li>
-                                <a href="/contact-us" className="footer-section-footer-link">
+                                <span onClick={()=>handleScrollAtAny("explore-kits")} className="footer-section-footer-link">
                                     Custom Mini Projects
-                                </a>
+                                </span>
                             </li>
                             <li>
                                 <a href="/contact-us" className="footer-section-footer-link">
@@ -202,11 +203,11 @@ export default function Footer() {
                             </li>
                             <li>
                                 <a href="/myorders" className="footer-section-footer-link">
-                                    Track Your Order
+                                    View Your Order
                                 </a>
                             </li>
                             <li>
-                                <a href="/faq" className="footer-section-footer-link">
+                                <a href="/contact-us" className="footer-section-footer-link">
                                     FAQ
                                 </a>
                             </li>
@@ -242,10 +243,10 @@ export default function Footer() {
                     <div className="footer-section-footer-bottom-content">
                         <p className="footer-section-copyright">© {new Date().getFullYear()} Kitees. All rights reserved.</p>
                         <div className="footer-section-policy-links">
-                            <a href="#" className="footer-section-policy-link"> 🔒 Secure Payments</a>
-                            <a href="#" className="footer-section-policy-link"> 🚚 Fast Shipping</a>
-                            <a href="#" className="footer-section-policy-link"> 💰 No Hidden Charges</a>
-                            <a href="#" className="footer-section-policy-link"> ✅ Quality Guaranteed</a>
+                            <span className="footer-section-policy-link"> 🔒 Secure Payments</span>
+                            <span className="footer-section-policy-link"> 🚚 Fast Shipping</span>
+                            <span className="footer-section-policy-link"> 💰 No Hidden Charges</span>
+                            <span className="footer-section-policy-link"> ✅ Quality Guaranteed</span>
                         </div>
                     </div>
                 </div>
