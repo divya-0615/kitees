@@ -124,7 +124,7 @@
   gap: 12px;
 }
 
-.item-image {
+.cart-drawer-item-image {
   width: 60px;
   height: 60px;
   object-fit: cover;
@@ -211,7 +211,7 @@
   border: 1px solid #e5e7eb;
 }
 
-.component-image {
+.cart-drawer-component-image {
   width: 32px;
   height: 32px;
   object-fit: cover;

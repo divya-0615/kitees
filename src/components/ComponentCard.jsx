@@ -92,7 +92,7 @@ const ComponentCard = ({ component, index, animatingComponent, onAddToKit, baske
                         </div>
 
                         <div className="price-rating">
-                            <div className="price">${component.price}</div>
+                            <div className="price">₹{component.price}</div>
                             <div className="rating">
                                 <span className="star">⭐</span>
                                 {component.rating}

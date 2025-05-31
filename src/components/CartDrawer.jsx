@@ -63,7 +63,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                 {items.map((item) => (
                   <div key={item.id} className="cart-item">
                     <div className="item-content">
-                      <img src={item.image || "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg"} alt={item.name} className="item-image" />
+                      <img src={item.image ? item.image : "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg"} alt={item.name} className="item-image" />
 
                       <div className="item-details">
                         <div className="item-header">
@@ -89,7 +89,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                                   <img
                                     src={component.image || "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg"}
                                     alt={component.name}
-                                    className="component-image"
+                                    className="cart-drawer-component-image"
                                   />
                                   <div className="component-info">
                                     <span className="component-name">{component.name}</span>
@@ -118,7 +118,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                             </button>
                           </div>
 
-                          <div className="item-price">${(item.price * item.quantity).toFixed(2)}</div>
+                          <div className="item-price">₹{(item.price * item.quantity).toFixed(2)}</div>
                         </div>
                       </div>
                     </div>
@@ -129,7 +129,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
               <div className="cart-footer">
                 <div className="total-section">
                   <div className="total-label">Total:</div>
-                  <div className="total-price">${getTotalPrice().toFixed(2)}</div>
+                  <div className="total-price">₹{getTotalPrice().toFixed(2)}</div>
                 </div>
 
                 <div className="footer-buttons">

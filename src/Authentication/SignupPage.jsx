@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
 import "./AuthPages.css"
-
+import { toast } from "react-hot-toast"
 const SignupPage = () => {
     const [formData, setFormData] = useState({
         name: "",
@@ -131,6 +131,7 @@ const SignupPage = () => {
                 college: formData.college,
             })
             setSuccess("Account created successfully! Welcome to Kitees.")
+            toast.success("Account Created successfully!", { duration: 1000 })
             setTimeout(() => {
                 navigate("/")
             }, 1500)

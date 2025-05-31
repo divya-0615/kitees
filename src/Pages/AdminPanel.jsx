@@ -81,19 +81,19 @@ const AdminPanel = () => {
             <div className="order-item">
               <span className="order-id">#ORD-001</span>
               <span className="order-customer">John Doe</span>
-              <span className="order-amount">$125.99</span>
+              <span className="order-amount">₹125.99</span>
               <span className="order-status completed">Completed</span>
             </div>
             <div className="order-item">
               <span className="order-id">#ORD-002</span>
               <span className="order-customer">Jane Smith</span>
-              <span className="order-amount">$89.50</span>
+              <span className="order-amount">₹89.50</span>
               <span className="order-status pending">Pending</span>
             </div>
             <div className="order-item">
               <span className="order-id">#ORD-003</span>
               <span className="order-customer">Mike Johnson</span>
-              <span className="order-amount">$234.75</span>
+              <span className="order-amount">₹234.75</span>
               <span className="order-status shipped">Shipped</span>
             </div>
           </div>
@@ -150,7 +150,7 @@ const AdminPanel = () => {
         <div className="product-card">
           <div className="product-image">📱</div>
           <h4>Arduino Uno R3</h4>
-          <p>$25.99</p>
+          <p>₹25.99</p>
           <div className="product-actions">
             <button className="edit-btn">Edit</button>
             <button className="delete-btn">Delete</button>
@@ -159,7 +159,7 @@ const AdminPanel = () => {
         <div className="product-card">
           <div className="product-image">🔌</div>
           <h4>Raspberry Pi 4</h4>
-          <p>$75.00</p>
+          <p>₹75.00</p>
           <div className="product-actions">
             <button className="edit-btn">Edit</button>
             <button className="delete-btn">Delete</button>
@@ -194,7 +194,7 @@ const AdminPanel = () => {
         <div className="table-row">
           <span>#ORD-001</span>
           <span>John Doe</span>
-          <span>$125.99</span>
+          <span>₹125.99</span>
           <span className="status completed">Completed</span>
           <span>2024-01-15</span>
           <div className="actions">

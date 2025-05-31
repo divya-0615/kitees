@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useCart } from "../contexts/CartContext"
 import "./ProjectDetailModal.css"
-
+import { toast } from "react-hot-toast"
 const ProjectDetailModal = ({ project, isOpen, onClose }) => {
   const { addToCart } = useCart()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -19,6 +19,19 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
       image: project.images[0],
       type: "project",
     })
+    toast.success(`${project.title} is Added to cart sucessfully...!`, {
+      duration: 2500,
+      position: "top-center",
+      style: {
+        background: "#4caf50",
+        color: "#fff",
+        fontSize: "16px",
+        padding: "10px 20px",
+        borderRadius: "8px",
+        marginTop: "20px",
+      },
+      reveserOrder: false,
+    });
     onClose()
   }
 
@@ -46,11 +59,11 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
   const totalComponentsPrice = project.components.reduce((sum, comp) => sum + comp.price * comp.quantity, 0)
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content project-detail-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2 className="modal-title">{project.title}</h2>
-          <button className="modal-close" onClick={onClose}>
+    <div className="mini-projects-modal-modal-overlay" onClick={onClose}>
+      <div className="mini-projects-modal-modal-content project-detail-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="mini-projects-modal-modal-header">
+          <h2 className="mini-projects-modal-modal-title">{project.title}</h2>
+          <button className="mini-projects-modal-modal-close" onClick={onClose}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -58,26 +71,26 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
           </button>
         </div>
 
-        <div className="modal-body">
-          <div className="modal-grid">
+        <div className="mini-projects-modal-modal-body">
+          <div className="mini-projects-modal-modal-grid">
             {/* Image Section */}
-            <div className="modal-image-section">
-              <div className="image-container">
+            <div className="mini-projects-modal-modal-image-section">
+              <div className="mini-projects-modal-image-container">
                 <img
                   src={project.images[currentImageIndex] || "/placeholder.svg"}
                   alt={`${project.title} - Image ${currentImageIndex + 1}`}
-                  className="modal-image"
+                  className="mini-projects-modal-modal-image"
                 />
 
                 {/* Navigation Buttons */}
                 {project.images.length > 1 && (
                   <>
-                    <button className="nav-btn prev-btn" onClick={prevImage}>
+                    <button className="mini-projects-modal-nav-btn mini-projects-modal-prev-btn" onClick={prevImage}>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polyline points="15,18 9,12 15,6"></polyline>
                       </svg>
                     </button>
-                    <button className="nav-btn next-btn" onClick={nextImage}>
+                    <button className="mini-projects-modal-nav-btn mini-projects-modal-next-btn" onClick={nextImage}>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polyline points="9,18 15,12 9,6"></polyline>
                       </svg>
@@ -87,7 +100,7 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
 
                 {/* Image Indicators */}
                 {project.images.length > 1 && (
-                  <div className="image-indicators">
+                  <div className="mini-projects-modal-image-indicators">
                     {project.images.map((_, index) => (
                       <button
                         key={index}
@@ -100,68 +113,68 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
 
                 {/* Badges */}
                 <div
-                  className="difficulty-badge-modal"
+                  className="mini-projects-modal-difficulty-badge-modal"
                   style={{ backgroundColor: getDifficultyColor(project.difficulty) }}
                 >
                   {project.difficulty}
                 </div>
-                <div className="rating-badge-modal">
-                  <span className="star">⭐</span>
+                <div className="mini-projects-modal-rating-badge-modal">
+                  <span className="mini-projects-modal-star">⭐</span>
                   {project.rating}
                 </div>
               </div>
 
-              <div className="project-stats-modal">
-                <div className="stat-item">
-                  <div className="stat-icon">⏱️</div>
-                  <div className="stat-content">
-                    <div className="stat-label">Duration</div>
-                    <div className="stat-value">{project.duration}</div>
+              <div className="mini-projects-modal-project-stats-modal">
+                <div className="mini-projects-modal-stat-item">
+                  <div className="mini-projects-modal-stat-icon">⏱️</div>
+                  <div className="mini-projects-modal-stat-content">
+                    <div className="mini-projects-modal-stat-label">Duration</div>
+                    <div className="mini-projects-modal-stat-value">{project.duration}</div>
                   </div>
                 </div>
-                <div className="stat-item">
-                  <div className="stat-icon">⭐</div>
-                  <div className="stat-content">
-                    <div className="stat-label">Rating</div>
-                    <div className="stat-value">{project.rating}/5.0</div>
+                <div className="mini-projects-modal-stat-item">
+                  <div className="mini-projects-modal-stat-icon">⭐</div>
+                  <div className="mini-projects-modal-stat-content">
+                    <div className="mini-projects-modal-stat-label">Rating</div>
+                    <div className="mini-projects-modal-stat-value">{project.rating}/5.0</div>
                   </div>
                 </div>
-                <div className="stat-item">
-                  <div className="stat-icon">👥</div>
-                  <div className="stat-content">
-                    <div className="stat-label">Reviews</div>
-                    <div className="stat-value">{project.reviews}</div>
+                <div className="mini-projects-modal-stat-item">
+                  <div className="mini-projects-modal-stat-icon">👥</div>
+                  <div className="mini-projects-modal-stat-content">
+                    <div className="mini-projects-modal-stat-label">Reviews</div>
+                    <div className="mini-projects-modal-stat-value">{project.reviews}</div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Details Section */}
-            <div className="modal-details-section">
-              <div className="modal-price-section">
-                <div className="modal-price">
-                  <span className="price-currency">$</span>
-                  <span className="price-value">{project.price}</span>
+            <div className="mini-projects-modal-modal-details-section">
+              <div className="mini-projects-modal-modal-price-section">
+                <div className="mini-projects-modal-modal-price">
+                  <span className="mini-projects-modal-price-currency">₹</span>
+                  <span className="mini-projects-modal-price-value">{project.price}</span>
                 </div>
-                <p className="modal-description">{project.description}</p>
+                <p className="mini-projects-modal-modal-description">{project.description}</p>
               </div>
 
-              <div className="project-features-section">
-                <h3 className="features-title">Project Features</h3>
-                <div className="features-list">
+              <div className="mini-projects-modal-project-features-section">
+                <h3 className="mini-projects-modal-features-title">Project Features</h3>
+                <div className="mini-projects-modal-features-list">
                   {project.features.map((feature, index) => (
-                    <div key={index} className="feature-item">
-                      <span className="feature-icon">✅</span>
+                    <div key={index} className="mini-projects-modal-feature-item">
+                      <span className="mini-projects-modal-feature-icon">✅</span>
                       {feature}
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="modal-components-section">
-                <h3 className="components-title">Required Components</h3>
-                <div className="components-table-container">
-                  <table className="components-table">
+              <div className="mini-projects-modal-modal-components-section">
+                <h3 className="mini-projects-modal-components-title">Required Components</h3>
+                <div className="mini-projects-modal-components-table-container">
+                  <table className="mini-projects-modal-components-table">
                     <thead>
                       <tr>
                         <th>Component</th>
@@ -174,18 +187,18 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
                         <tr key={index}>
                           <td>{component.name}</td>
                           <td>{component.quantity}</td>
-                          <td>${component.price.toFixed(2)}</td>
+                          <td>₹{component.price.toFixed(2)}</td>
                         </tr>
                       ))}
                     </tbody>
                     <tfoot>
-                      <tr className="total-row">
+                      <tr className="mini-projects-modal-total-row">
                         <td>
                           <strong>Total Value</strong>
                         </td>
                         <td></td>
                         <td>
-                          <strong>${totalComponentsPrice.toFixed(2)}</strong>
+                          <strong>₹{totalComponentsPrice.toFixed(2)}</strong>
                         </td>
                       </tr>
                     </tfoot>
@@ -193,24 +206,24 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
                 </div>
               </div>
 
-              <button onClick={handleAddToCart} className="modal-add-btn">
-                <span className="btn-icon">🛒</span>
-                Add to Cart - ${project.price}
+              <button onClick={handleAddToCart} className="mini-projects-modal-modal-add-btn">
+                <span className="mini-projects-modal-btn-icon">🛒</span>
+                Add to Cart - ₹{project.price}
               </button>
             </div>
           </div>
 
           {/* Full Description */}
-          <div className="modal-full-description">
-            <h3 className="description-title">Project Overview</h3>
-            <p className="description-text">{project.fullDescription}</p>
+          <div className="mini-projects-modal-modal-full-description">
+            <h3 className="mini-projects-modal-description-title">Project Overview</h3>
+            <p className="mini-projects-modal-description-text">{project.fullDescription}</p>
 
-            <div className="learning-outcomes">
+            <div className="mini-projects-modal-learning-outcomes">
               <h4>What You'll Learn</h4>
-              <div className="outcomes-list">
+              <div className="mini-projects-modal-outcomes-list">
                 {project.learningOutcomes.map((outcome, index) => (
-                  <div key={index} className="outcome-item">
-                    <span className="outcome-icon">🎯</span>
+                  <div key={index} className="mini-projects-modal-outcome-item">
+                    <span className="mini-projects-modal-outcome-icon">🎯</span>
                     {outcome}
                   </div>
                 ))}

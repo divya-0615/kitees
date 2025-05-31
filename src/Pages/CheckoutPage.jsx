@@ -1,35 +1,41 @@
+// /src/pages/CheckoutPage.jsx
 "use client"
 
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useCart } from "../contexts/CartContext"
 import { useAuth } from "../contexts/AuthContext"
-import { collection, addDoc } from "firebase/firestore"
+import { collection, addDoc, serverTimestamp } from "firebase/firestore"
 import { db } from "../firebase"
-import jsPDF from "jspdf"
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import ProtectedRoute from "../components/ProtectedRoute"
-import "./CheckoutPage.css"
-
 import { generateReceiptPDF } from "../components/GenerateReceiptPDF"
+import toast from "react-hot-toast"
+import "./CheckoutPage.css"
+import NewsletterSection from "../components/NewsletterSection"
+import TestimonialsSection from "../components/TestimonialsSection"
 
 const CheckoutPage = () => {
   const navigate = useNavigate()
   const { items, getTotalPrice, clearCart } = useCart()
   const { userData } = useAuth()
+
   const [orderPlaced, setOrderPlaced] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [orderDetails, setOrderDetails] = useState(null)
+
   const [formData, setFormData] = useState({
     address: "",
     city: "",
     state: "",
     pincode: "",
-    paymentMethod: "card",
+    paymentMethod: "cod", // default to Cash on Delivery
   })
 
-  const totalPrice = getTotalPrice()
+  // Compute total price and total quantity of cart items
+  const totalPrice = getTotalPrice() || 0
+  const totalQuantity = items.reduce((sum, item) => sum + (item.quantity || 0), 0)
 
   const handleInputChange = (e) => {
     setFormData({
@@ -39,65 +45,52 @@ const CheckoutPage = () => {
   }
 
   const generateOrderId = () => {
+    // Example: "KIT12345678ABCD"
     return "KIT" + Date.now().toString().slice(-8) + Math.random().toString(36).substr(2, 4).toUpperCase()
   }
 
   const saveOrderToFirestore = async (orderData) => {
     try {
-      // Save main order
-      const orderRef = await addDoc(collection(db, "all-orders"), orderData)
-      console.log("Order saved with ID: ", orderRef.id)
-
-      // Save individual items for better tracking
-      const itemPromises = orderData.items.map(async (item) => {
-        const itemData = {
-          orderId: orderData.orderId,
-          orderDocId: orderRef.id,
-          itemId: item.id,
-          itemName: item.name,
-          itemPrice: item.price,
-          quantity: item.quantity,
-          totalItemPrice: item.price * item.quantity,
-          itemType: item.type,
-          components: item.components || [],
-          customerEmail: orderData.customerDetails.email,
-          customerName: orderData.customerDetails.name,
-          orderDate: orderData.orderDate,
-          orderTime: orderData.orderTime,
-          status: "confirmed",
-          createdAt: new Date(),
-        }
-
-        return await addDoc(collection(db, "order-items"), itemData)
-      })
-
-      await Promise.all(itemPromises)
-      console.log("All order items saved successfully")
-
-      return orderRef.id
+      const docRef = await addDoc(collection(db, "all-orders"), orderData)
+      console.log("Order saved with ID:", docRef.id)
+      return docRef.id
     } catch (error) {
-      console.error("Error saving order: ", error)
+      console.error("Error saving order:", error)
       throw error
     }
   }
-
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault()
     setIsProcessing(true)
 
+    if (!userData) {
+      toast.error("You must be logged in to place an order.")
+      setIsProcessing(false)
+      return
+    }
+
+    if (items.length === 0) {
+      toast.error("Your cart is empty.")
+      setIsProcessing(false)
+      return
+    }
+
     try {
-      // Simulate payment processing
-      await new Promise((resolve) => setTimeout(resolve, 3000))
+      // Simulate payment processing delay
+      await new Promise((resolve) => setTimeout(resolve, 2000))
 
       const orderId = generateOrderId()
-      const orderDate = new Date().toLocaleDateString("en-IN")
-      const orderTime = new Date().toLocaleTimeString("en-IN")
+      const now = new Date()
+      const orderDate = now.toLocaleDateString("en-IN")   // e.g. "31/05/2025"
+      const orderTime = now.toLocaleTimeString("en-IN")   // e.g. "14:35:20"
 
+      // Build the full order document
       const orderData = {
         orderId,
         orderDate,
         orderTime,
+        createdAt: serverTimestamp(), // Firestore timestamp
         customerDetails: {
           name: userData?.name || "",
           email: userData?.email || "",
@@ -121,25 +114,23 @@ const CheckoutPage = () => {
         })),
         paymentMethod: formData.paymentMethod,
         totalAmount: totalPrice,
-        itemCount: items.length,
-        totalQuantity: items.reduce((sum, item) => sum + item.quantity, 0),
-        status: "confirmed",
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        totalQuantity,
+        status: "confirmed", // default status on creation
       }
 
-      // Save to Firestore (both main order and individual items)
-      await saveOrderToFirestore(orderData)
+      const firestoreOrderId = await saveOrderToFirestore(orderData)
 
-      setOrderDetails(orderData)
+      // Keep the same object in state for receipt generation
+      setOrderDetails({ ...orderData, firestoreOrderId })
       setOrderPlaced(true)
       clearCart()
+      toast.success("Order placed successfully!")
     } catch (error) {
       console.error("Error placing order:", error)
-      alert("Failed to place order. Please try again.")
+      toast.error("Failed to place order. Please try again.")
+    } finally {
+      setIsProcessing(false)
     }
-
-    setIsProcessing(false)
   }
 
   const handleDownloadReceipt = () => {
@@ -148,6 +139,7 @@ const CheckoutPage = () => {
     }
   }
 
+  // If the cart is empty and no order has just been placed, show an "empty cart" screen
   if (items.length === 0 && !orderPlaced) {
     return (
       <ProtectedRoute message="Please login to place your order and access checkout">
@@ -159,7 +151,10 @@ const CheckoutPage = () => {
                 <div className="checkout-page-empty-icon">🛒</div>
                 <h2>Your cart is empty</h2>
                 <p>Add some items to your cart before checking out.</p>
-                <button className="checkout-page-btn" onClick={() => navigate("/")}>
+                <button
+                  className="checkout-page-btn"
+                  onClick={() => navigate("/")}
+                >
                   Continue Shopping
                 </button>
               </div>
@@ -169,6 +164,14 @@ const CheckoutPage = () => {
         </div>
       </ProtectedRoute>
     )
+  }
+
+  if (orderPlaced) {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "instant" // you can change this to "smooth"
+    });
   }
 
   return (
@@ -190,37 +193,12 @@ const CheckoutPage = () => {
                 </div>
                 <h2>Order Placed Successfully!</h2>
                 <p>
-                  Thank you for your purchase, {userData?.name}! Your order has been confirmed and will be processed
-                  shortly. You will receive a confirmation email with tracking details.
+                  Your order ID is <strong>#{orderDetails.orderId}</strong>.
                 </p>
-                <div className="checkout-page-order-details">
-                  <div className="checkout-page-detail-item">
-                    <span>Order ID:</span>
-                    <span>{orderDetails?.orderId}</span>
-                  </div>
-                  <div className="checkout-page-detail-item">
-                    <span>Order Date:</span>
-                    <span>{orderDetails?.orderDate}</span>
-                  </div>
-                  <div className="checkout-page-detail-item">
-                    <span>Order Time:</span>
-                    <span>{orderDetails?.orderTime}</span>
-                  </div>
-                  <div className="checkout-page-detail-item">
-                    <span>Items Ordered:</span>
-                    <span>
-                      {orderDetails?.itemCount} items ({orderDetails?.totalQuantity} pieces)
-                    </span>
-                  </div>
-                  <div className="checkout-page-detail-item">
-                    <span>Total Amount:</span>
-                    <span>₹{orderDetails?.totalAmount?.toFixed(2)}</span>
-                  </div>
-                  <div className="checkout-page-detail-item">
-                    <span>Estimated Delivery:</span>
-                    <span>3-5 business days</span>
-                  </div>
-                </div>
+                <p>
+                  Thank you, {orderDetails.customerDetails.name}! A confirmation
+                  email has been sent to <strong>{orderDetails.customerDetails.email}</strong>.
+                </p>
                 <div className="checkout-page-success-actions">
                   <button className="checkout-page-receipt-btn" onClick={handleDownloadReceipt}>
                     📄 Download Receipt
@@ -233,50 +211,93 @@ const CheckoutPage = () => {
             ) : (
               <>
                 <div className="checkout-page-header">
-                  <button className="checkout-page-back-btn" onClick={() => navigate("/")}>
-                    ← Back to Shopping
+                  <button
+                    className="checkout-page-back-btn"
+                    onClick={() => navigate(-1)}
+                  >
+                    ← Back
                   </button>
                   <h1 className="checkout-page-title">Checkout</h1>
-                  <p className="checkout-page-subtitle">Complete your order, {userData?.name}</p>
+                  <p className="checkout-page-subtitle">
+                    Complete your order, {userData?.name}
+                  </p>
                 </div>
 
                 <div className="checkout-page-grid">
+                  {/* ──────────────────────────── */}
+                  {/* Left column: Order Summary + Shipping Form */}
+                  {/* ──────────────────────────── */}
                   <div className="checkout-page-form-section">
                     <div className="checkout-page-section">
-                      <h3 className="checkout-page-section-title">📋 Order Summary</h3>
+                      <h3 className="checkout-page-section-title">
+                        📋 Order Summary
+                      </h3>
                       <div className="checkout-page-order-items">
                         {items.map((item) => (
-                          <div key={item.id} className="checkout-page-order-item">
+                          <div
+                            key={item.id}
+                            className="checkout-page-order-item"
+                          >
                             <img
-                              src={item.image || "/placeholder.svg?height=60&width=60"}
+                              src={
+                                item.image ||
+                                "/placeholder.svg?height=60&width=60"
+                              }
                               alt={item.name}
                               className="checkout-page-item-image"
                             />
                             <div className="checkout-page-item-details">
-                              <h4 className="checkout-page-item-name">{item.name}</h4>
-                              <p className="checkout-page-item-quantity">Quantity: {item.quantity}</p>
-                              {item.type === "custom-kit" && item.components && (
-                                <p className="checkout-page-components-count">
-                                  {item.components.length} components included
-                                </p>
-                              )}
+                              <h4 className="checkout-page-item-name">
+                                {item.name}
+                              </h4>
+                              <p className="checkout-page-item-quantity">
+                                Quantity: {item.quantity}
+                              </p>
+                              {item.components &&
+                                item.components.length > 0 && (
+                                  <div className="checkout-page-components-list">
+                                    <strong>Components:</strong>
+                                    <ul>
+                                      {item.components.map((comp, idx) => (
+                                        <li key={idx}>
+                                          {comp.name}
+                                          {comp.quantity
+                                            ? ` x${comp.quantity}`
+                                            : ""}
+                                          {comp.price !== undefined
+                                            ? ` — ₹${Number(
+                                              comp.price
+                                            ).toFixed(2)}`
+                                            : ""}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
                             </div>
-                            <div className="checkout-page-item-price">₹{(item.price * item.quantity).toFixed(2)}</div>
+                            <div className="checkout-page-item-price">
+                              ₹{(item.price * item.quantity).toFixed(2)}
+                            </div>
                           </div>
                         ))}
                       </div>
                     </div>
 
                     <div className="checkout-page-section">
-                      <h3 className="checkout-page-section-title">🚚 Shipping Information</h3>
-                      <form onSubmit={handlePlaceOrder} className="checkout-page-form">
+                      <h3 className="checkout-page-section-title">
+                        🚚 Shipping Information
+                      </h3>
+                      <form
+                        onSubmit={handlePlaceOrder}
+                        className="checkout-page-form"
+                      >
                         <div className="checkout-page-form-row">
                           <div className="checkout-page-form-group">
                             <label>Full Name</label>
                             <input
                               type="text"
                               value={userData?.name || ""}
-                              disabled
+                              readOnly
                               className="checkout-page-form-input"
                             />
                           </div>
@@ -285,32 +306,46 @@ const CheckoutPage = () => {
                             <input
                               type="email"
                               value={userData?.email || ""}
-                              disabled
-                              className="checkout-page-form-input"
-                            />
-                          </div>
-                          <div className="checkout-page-form-group">
-                            <label>Mobile</label>
-                            <input
-                              type="tel"
-                              value={userData?.mobile || ""}
-                              disabled
+                              readOnly
                               className="checkout-page-form-input"
                             />
                           </div>
                         </div>
 
-                        <div className="checkout-page-form-group">
-                          <label>Address</label>
-                          <input
-                            type="text"
-                            name="address"
-                            value={formData.address}
-                            onChange={handleInputChange}
-                            required
-                            placeholder="Enter your full address"
-                            className="checkout-page-form-input"
-                          />
+                        <div className="checkout-page-form-row">
+                          <div className="checkout-page-form-group">
+                            <label>Mobile Number</label>
+                            <input
+                              type="tel"
+                              value={userData?.mobile || ""}
+                              readOnly
+                              className="checkout-page-form-input"
+                            />
+                          </div>
+                          <div className="checkout-page-form-group">
+                            <label>College</label>
+                            <input
+                              type="text"
+                              value={userData?.college || ""}
+                              readOnly
+                              className="checkout-page-form-input"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="checkout-page-form-row">
+                          <div className="checkout-page-form-group">
+                            <label>Address</label>
+                            <input
+                              type="text"
+                              name="address"
+                              value={formData.address}
+                              onChange={handleInputChange}
+                              required
+                              placeholder="Street, Building, etc."
+                              className="checkout-page-form-input"
+                            />
+                          </div>
                         </div>
 
                         <div className="checkout-page-form-row">
@@ -338,6 +373,9 @@ const CheckoutPage = () => {
                               className="checkout-page-form-input"
                             />
                           </div>
+                        </div>
+
+                        <div className="checkout-page-form-row">
                           <div className="checkout-page-form-group">
                             <label>Pincode</label>
                             <input
@@ -353,7 +391,9 @@ const CheckoutPage = () => {
                         </div>
 
                         <div className="checkout-page-section">
-                          <h3 className="checkout-page-section-title">💳 Payment Method</h3>
+                          <h3 className="checkout-page-section-title">
+                            💳 Payment Method
+                          </h3>
                           <div className="checkout-page-payment-options">
                             <label className="checkout-page-payment-option">
                               <input
@@ -364,7 +404,9 @@ const CheckoutPage = () => {
                                 onChange={handleInputChange}
                               />
                               <span className="checkout-page-option-content">
-                                <span className="checkout-page-option-icon">💳</span>
+                                <span className="checkout-page-option-icon">
+                                  💳
+                                </span>
                                 <span>Credit/Debit Card</span>
                               </span>
                             </label>
@@ -377,7 +419,9 @@ const CheckoutPage = () => {
                                 onChange={handleInputChange}
                               />
                               <span className="checkout-page-option-content">
-                                <span className="checkout-page-option-icon">📱</span>
+                                <span className="checkout-page-option-icon">
+                                  📱
+                                </span>
                                 <span>UPI</span>
                               </span>
                             </label>
@@ -390,30 +434,29 @@ const CheckoutPage = () => {
                                 onChange={handleInputChange}
                               />
                               <span className="checkout-page-option-content">
-                                <span className="checkout-page-option-icon">💰</span>
+                                <span className="checkout-page-option-icon">
+                                  💰
+                                </span>
                                 <span>Cash on Delivery</span>
                               </span>
                             </label>
                           </div>
                         </div>
 
-                        <button type="submit" className="checkout-page-place-order-btn" disabled={isProcessing}>
-                          {isProcessing ? (
-                            <>
-                              <span className="checkout-page-loading-spinner"></span>
-                              Processing Order...
-                            </>
-                          ) : (
-                            <>
-                              <span className="checkout-page-btn-icon">🔒</span>
-                              Place Order - ₹{totalPrice.toFixed(2)}
-                            </>
-                          )}
+                        <button
+                          type="submit"
+                          className="checkout-page-place-order-btn"
+                          disabled={isProcessing}
+                        >
+                          {isProcessing ? "Processing..." : "Place Order"}
                         </button>
                       </form>
                     </div>
                   </div>
 
+                  {/* ──────────────────────────── */}
+                  {/* Right column: Price Breakdown */}
+                  {/* ──────────────────────────── */}
                   <div className="checkout-page-summary-card">
                     <h3 className="checkout-page-summary-title">💰 Order Summary</h3>
                     <div className="checkout-page-price-breakdown">
@@ -421,7 +464,7 @@ const CheckoutPage = () => {
                         <span>Subtotal ({items.length} items)</span>
                         <span>₹{totalPrice.toFixed(2)}</span>
                       </div>
-                      <div className="checkout-page-price-divider"></div>
+                      {/* <div className="checkout-page-price-divider"></div> */}
                       <div className="checkout-page-price-row checkout-page-total-row">
                         <span>Total Amount</span>
                         <span>₹{totalPrice.toFixed(2)}</span>
@@ -456,6 +499,8 @@ const CheckoutPage = () => {
           </div>
         </main>
 
+        <TestimonialsSection />
+        <NewsletterSection />
         <Footer />
       </div>
     </ProtectedRoute>

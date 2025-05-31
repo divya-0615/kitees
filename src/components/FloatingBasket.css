@@ -1,17 +1,18 @@
-.floating-basket-container {
+.customizable-kits-floating-basket-container {
   position: fixed;
   bottom: 32px;
   left: 32px;
-  z-index: 100;
+  z-index: 1000;
   pointer-events: none;
 }
 
-.floating-basket {
+.customizable-kits-floating-basket {
   position: relative;
+  z-index: 1000;
   transition: all 0.5s ease;
 }
 
-.floating-basket.has-items {
+.customizable-kits-floating-basket.customizable-kits-has-items {
   animation: basketBounce 0.5s ease-out;
 }
 
@@ -25,13 +26,13 @@
   }
 }
 
-.basket {
+.customizable-kits-basket {
   width: 128px;
   height: 128px;
   position: relative;
 }
 
-.basket-body {
+.customizable-kits-basket-body {
   position: absolute;
   bottom: 0;
   width: 100%;
@@ -42,7 +43,7 @@
     inset 0 2px 10px rgba(255, 255, 255, 0.2);
 }
 
-.basket-weave {
+.customizable-kits-basket-weave {
   position: absolute;
   inset: 8px;
   background: linear-gradient(to bottom, #f59e0b, #d97706);
@@ -50,7 +51,7 @@
   overflow: hidden;
 }
 
-.weave-grid {
+.customizable-kits-weave-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 4px;
@@ -58,12 +59,12 @@
   height: 100%;
 }
 
-.weave-cell {
+.customizable-kits-weave-cell {
   background: rgba(146, 64, 14, 0.3);
   border-radius: 2px;
 }
 
-.basket-handle {
+.customizable-kits-basket-handle {
   position: absolute;
   top: -8px;
   left: 50%;
@@ -76,7 +77,7 @@
   box-shadow: 0 4px 15px rgba(146, 64, 14, 0.3);
 }
 
-.basket-items {
+.customizable-kits-basket-items {
   position: absolute;
   bottom: 16px;
   left: 50%;
@@ -85,11 +86,10 @@
   height: 60px;
 }
 
-.basket-item {
+.customizable-kits-basket-item {
   position: absolute;
   bottom: 0;
   left: 50%;
-  transform: translateX(-50%);
   width: 24px;
   height: 24px;
   background: linear-gradient(135deg, #3b82f6, #1d4ed8);
@@ -115,7 +115,7 @@
   }
 }
 
-.item-counter {
+.customizable-kits-item-counter {
   position: absolute;
   top: -8px;
   right: -8px;
@@ -146,32 +146,33 @@
 }
 
 @media (max-width: 768px) {
-  .floating-basket-container {
+  .customizable-kits-floating-basket-container {
     bottom: 16px;
-    left: 16px;
+    right: 16px;
+    left: auto;
   }
 
-  .basket {
+  .customizable-kits-basket {
     width: 96px;
     height: 96px;
   }
 
-  .basket-body {
+  .customizable-kits-basket-body {
     height: 60px;
   }
 
-  .basket-handle {
+  .customizable-kits-basket-handle {
     width: 60px;
     height: 24px;
     border-width: 3px;
   }
 
-  .basket-item {
+  .customizable-kits-basket-item {
     width: 18px;
     height: 18px;
   }
 
-  .item-counter {
+  .customizable-kits-item-counter {
     width: 24px;
     height: 24px;
     font-size: 0.75rem;

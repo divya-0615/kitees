@@ -7,13 +7,16 @@ import { AuthProvider } from "./contexts/AuthContext.jsx";
 import LoginPage from "./Authentication/LoginPage.jsx";
 import SignupPage from "./Authentication/SignupPage.jsx";
 import MyOrders from "./Pages/MyOrders.jsx";
-
+import { Toaster } from "react-hot-toast";
+import ScrollToTop from "./contexts/ScrollTop.jsx";
 function App() {
   return (
     <AuthProvider>
       <CartProvider>
         <Router>
           <div className="App">
+            <Toaster position="top-center" reverseOrder={false} />
+            <ScrollToTop />
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />

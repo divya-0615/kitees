@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
 import "./AuthPages.css"
-
+import { toast, Toaster } from "react-hot-toast"
 const LoginPage = () => {
     const [formData, setFormData] = useState({
         email: "",
@@ -40,21 +40,24 @@ const LoginPage = () => {
         setSuccess("")
 
         try {
-            // Check for admin credentials
+            // Admin Login
             if (formData.email === "kitees@gmail.com" && formData.password === "admin1234") {
                 setSuccess("Admin authentication successful! Redirecting to admin panel...")
+                toast.success("Login successful...!")  // ✅ Show toast
                 setTimeout(() => {
-                    navigate("/admin")
+                    navigate("/admin")  // ✅ Navigate after short delay
                 }, 1500)
                 setLoading(false)
                 return
             }
 
+            // Regular User Login
             await login(formData.email, formData.password)
             setSuccess("Authentication successful! Welcome back.")
+            toast.success("Login successful!",{duration: 1000})  // ✅ Show toast
             setTimeout(() => {
-                navigate("/")
-            }, 1000)
+                navigate("/")  // ✅ Navigate after short delay
+            }, 1500)
         } catch (error) {
             if (error.code === "auth/user-not-found") {
                 setError("No account found with this email address.")
@@ -72,12 +75,13 @@ const LoginPage = () => {
         setLoading(false)
     }
 
+
     return (
         <div className="auth-page">
+            <Toaster position="top-center" reverseOrder={false} />
             <div className="auth-background"></div>
-
             <div className="auth-container">
-                <div className="auth-card slide-in-up" style={{maxWidth: "450px"}}>
+                <div className="auth-card slide-in-up" style={{ maxWidth: "450px" }}>
                     <div className="auth-header">
                         <Link to="/" className="back-to-home">
                             <span className="back-icon">←</span>

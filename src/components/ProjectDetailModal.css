@@ -1,4 +1,4 @@
-.modal-overlay {
+.mini-projects-modal-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -13,7 +13,7 @@
   backdrop-filter: blur(5px);
 }
 
-.modal-content {
+.mini-projects-modal-modal-content {
   background: white;
   border-radius: 20px;
   max-width: 1200px;
@@ -23,11 +23,11 @@
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
-.project-detail-modal {
+.mini-projects-modal-project-detail-modal {
   max-width: 1200px;
 }
 
-.modal-header {
+.mini-projects-modal-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -39,14 +39,14 @@
   z-index: 10;
 }
 
-.modal-title {
+.mini-projects-modal-modal-title {
   font-size: 1.8rem;
   font-weight: 700;
   color: #111827;
   margin: 0;
 }
 
-.modal-close {
+.mini-projects-modal-modal-close {
   background: none;
   border: none;
   cursor: pointer;
@@ -56,43 +56,43 @@
   transition: all 0.3s ease;
 }
 
-.modal-close:hover {
+.mini-projects-modal-modal-close:hover {
   background: #f3f4f6;
   color: #111827;
 }
 
-.modal-body {
+.mini-projects-modal-modal-body {
   padding: 32px;
 }
 
-.modal-grid {
+.mini-projects-modal-modal-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 40px;
   margin-bottom: 40px;
 }
 
-.modal-image-section {
+.mini-projects-modal-modal-image-section {
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
 
-.image-container {
+.mini-projects-modal-image-container {
   position: relative;
   border-radius: 16px;
   overflow: hidden;
   background: #f9fafb;
 }
 
-.modal-image {
+.mini-projects-modal-modal-image {
   width: 100%;
   height: 400px;
   object-fit: cover;
   display: block;
 }
 
-.nav-btn {
+.mini-projects-modal-nav-btn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -110,20 +110,20 @@
   backdrop-filter: blur(10px);
 }
 
-.nav-btn:hover {
+.mini-projects-modal-nav-btn:hover {
   background: rgba(0, 0, 0, 0.9);
   transform: translateY(-50%) scale(1.1);
 }
 
-.prev-btn {
+.mini-projects-modal-prev-btn {
   left: 16px;
 }
 
-.next-btn {
+.mini-projects-modal-next-btn {
   right: 16px;
 }
 
-.image-indicators {
+.mini-projects-modal-image-indicators {
   position: absolute;
   bottom: 16px;
   left: 50%;
@@ -132,7 +132,7 @@
   gap: 8px;
 }
 
-.indicator {
+.mini-projects-modal-indicator {
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -142,12 +142,12 @@
   transition: all 0.3s ease;
 }
 
-.indicator.active {
+.mini-projects-modal-indicator.mini-projects-modal-active {
   background: white;
   transform: scale(1.2);
 }
 
-.difficulty-badge-modal {
+.mini-projects-modal-difficulty-badge-modal {
   position: absolute;
   top: 16px;
   left: 16px;
@@ -161,7 +161,7 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-.rating-badge-modal {
+.mini-projects-modal-rating-badge-modal {
   position: absolute;
   top: 16px;
   right: 16px;
@@ -177,13 +177,13 @@
   backdrop-filter: blur(10px);
 }
 
-.project-stats-modal {
+.mini-projects-modal-project-stats-modal {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
 
-.stat-item {
+.mini-projects-modal-stat-item {
   background: #f9fafb;
   border-radius: 12px;
   padding: 20px;
@@ -191,18 +191,18 @@
   border: 1px solid #e5e7eb;
 }
 
-.stat-icon {
+.mini-projects-modal-stat-icon {
   font-size: 1.5rem;
   margin-bottom: 8px;
 }
 
-.stat-content {
+.mini-projects-modal-stat-content {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.stat-label {
+.mini-projects-modal-stat-label {
   font-size: 0.8rem;
   font-weight: 600;
   color: #6b7280;
@@ -210,69 +210,69 @@
   letter-spacing: 0.05em;
 }
 
-.stat-value {
+.mini-projects-modal-stat-value {
   font-size: 1rem;
   font-weight: 700;
   color: #111827;
 }
 
-.modal-details-section {
+.mini-projects-modal-modal-details-section {
   display: flex;
   flex-direction: column;
   gap: 32px;
 }
 
-.modal-price-section {
+.mini-projects-modal-modal-price-section {
   padding-bottom: 24px;
   border-bottom: 1px solid #e5e7eb;
 }
 
-.modal-price {
+.mini-projects-modal-modal-price {
   display: flex;
   align-items: baseline;
   gap: 4px;
   margin-bottom: 16px;
 }
 
-.price-currency {
+.mini-projects-modal-price-currency {
   font-size: 1.5rem;
   font-weight: 600;
   color: #059669;
 }
 
-.price-value {
+.mini-projects-modal-price-value {
   font-size: 2.5rem;
   font-weight: 800;
   color: #059669;
 }
 
-.modal-description {
+.mini-projects-modal-modal-description {
   font-size: 1.1rem;
   line-height: 1.6;
   color: #6b7280;
   margin: 0;
 }
 
-.project-features-section {
+.mini-projects-modal-project-features-section {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.features-title {
+.mini-projects-modal-features-title {
   font-size: 1.25rem;
   font-weight: 700;
   color: #111827;
   margin: 0;
 }
 
-.features-list {
+.mini-projects-modal-features-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.feature-item {
+.mini-projects-modal-feature-item {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -280,36 +280,36 @@
   color: #374151;
 }
 
-.feature-icon {
+.mini-projects-modal-feature-icon {
   font-size: 1.1rem;
   color: #059669;
 }
 
-.modal-components-section {
+.mini-projects-modal-modal-components-section {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.components-title {
+.mini-projects-modal-components-title {
   font-size: 1.25rem;
   font-weight: 700;
   color: #111827;
   margin: 0;
 }
 
-.components-table-container {
+.mini-projects-modal-components-table-container {
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid #e5e7eb;
 }
 
-.components-table {
+.mini-projects-modal-components-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.components-table th {
+.mini-projects-modal-components-table th {
   background: #f9fafb;
   padding: 12px 16px;
   text-align: left;
@@ -320,22 +320,22 @@
   letter-spacing: 0.05em;
 }
 
-.components-table td {
+.mini-projects-modal-components-table td {
   padding: 12px 16px;
   border-top: 1px solid #e5e7eb;
   color: #6b7280;
 }
 
-.total-row {
+.mini-projects-modal-total-row {
   background: #f9fafb;
 }
 
-.total-row td {
+.mini-projects-modal-total-row td {
   font-weight: 600;
   color: #111827;
 }
 
-.modal-add-btn {
+.mini-projects-modal-modal-add-btn {
   width: 100%;
   padding: 16px 24px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -353,48 +353,48 @@
   box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
 }
 
-.modal-add-btn:hover {
+.mini-projects-modal-modal-add-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 28px rgba(102, 126, 234, 0.4);
 }
 
-.btn-icon {
+.mini-projects-modal-btn-icon {
   font-size: 1.2rem;
 }
 
-.modal-full-description {
+.mini-projects-modal-modal-full-description {
   padding-top: 32px;
   border-top: 1px solid #e5e7eb;
 }
 
-.description-title {
+.mini-projects-modal-description-title {
   font-size: 1.5rem;
   font-weight: 700;
   color: #111827;
   margin-bottom: 16px;
 }
 
-.description-text {
+.mini-projects-modal-description-text {
   font-size: 1rem;
   line-height: 1.7;
   color: #6b7280;
   margin-bottom: 32px;
 }
 
-.learning-outcomes h4 {
+.mini-projects-modal-learning-outcomes h4 {
   font-size: 1.25rem;
   font-weight: 700;
   color: #111827;
   margin-bottom: 16px;
 }
 
-.outcomes-list {
+.mini-projects-modal-outcomes-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 12px;
 }
 
-.outcome-item {
+.mini-projects-modal-outcome-item {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -402,81 +402,81 @@
   color: #374151;
 }
 
-.outcome-icon {
+.mini-projects-modal-outcome-icon {
   font-size: 1.1rem;
   color: #7c3aed;
 }
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-  .modal-grid {
+  .mini-projects-modal-modal-grid {
     grid-template-columns: 1fr;
     gap: 32px;
   }
 
-  .project-stats-modal {
+  .mini-projects-modal-project-stats-modal {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  .modal-overlay {
+  .mini-projects-modal-modal-overlay {
     padding: 10px;
   }
 
-  .modal-header {
+  .mini-projects-modal-modal-header {
     padding: 20px;
   }
 
-  .modal-title {
+  .mini-projects-modal-modal-title {
     font-size: 1.5rem;
   }
 
-  .modal-body {
+  .mini-projects-modal-modal-body {
     padding: 20px;
   }
 
-  .modal-image {
+  .mini-projects-modal-modal-image {
     height: 300px;
   }
 
-  .project-stats-modal {
+  .mini-projects-modal-project-stats-modal {
     grid-template-columns: 1fr;
     gap: 12px;
   }
 
-  .stat-item {
+  .mini-projects-modal-stat-item {
     padding: 16px;
   }
 
-  .outcomes-list {
+  .mini-projects-modal-outcomes-list {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 480px) {
-  .modal-header {
+  .mini-projects-modal-modal-header {
     padding: 16px;
   }
 
-  .modal-body {
+  .mini-projects-modal-modal-body {
     padding: 16px;
   }
 
-  .modal-image {
+  .mini-projects-modal-modal-image {
     height: 250px;
   }
 
-  .nav-btn {
+  .mini-projects-modal-nav-btn {
     width: 36px;
     height: 36px;
   }
 
-  .prev-btn {
+  .mini-projects-modal-prev-btn {
     left: 12px;
   }
 
-  .next-btn {
+  .mini-projects-modal-next-btn {
     right: 12px;
   }
 }

@@ -2,7 +2,7 @@
 
 import { useCart } from "../contexts/CartContext"
 import "./KitDetailModel.css"
-
+import toast from "react-hot-toast"
 const KitDetailModal = ({ kit, isOpen, onClose }) => {
   const { addToCart } = useCart()
 
@@ -15,6 +15,19 @@ const KitDetailModal = ({ kit, isOpen, onClose }) => {
       image: kit.image,
       type: "kit",
     })
+    toast.success(`${kit.title} is Added to cart sucessfully...!`, {
+      duration: 2500,
+      position: "top-center",
+      style: {
+        background: "#4caf50",
+        color: "#fff",
+        fontSize: "16px",
+        padding: "10px 20px",
+        borderRadius: "8px",
+        marginTop: "20px",
+      },
+      reveserOrder: false,
+    });
     onClose()
   }
 

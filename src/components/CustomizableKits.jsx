@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useCart } from "../contexts/CartContext"
 import ComponentCard from "./ComponentCard"
 import FloatingBasket from "./FloatingBasket"
 import "./CustomizableKits.css"
+import toast from "react-hot-toast"
 
 const components = [
     {
@@ -121,6 +122,29 @@ const CustomizableKits = () => {
             category: component.category,
         })
 
+        toast.success(`${component.title} added to your custom kit!`, {
+            duration: 3500,
+            position: "bottom-right",
+            style: {
+                background: "linear-gradient(135deg, #34d399 0%, #10b981 50%,rgb(17, 175, 125) 100%)",
+                color: "#ffffff",
+                fontSize: "15px",
+                fontWeight: "600",
+                padding: "20px 26px",
+                borderRadius: "16px",
+                marginBottom: "16px",
+                boxShadow: "0 12px 30px rgba(52, 211, 153, 0.5), 0 6px 16px rgba(0, 0, 0, 0.2)",
+                border: "2px solid rgba(255, 255, 255, 0.3)",
+                backdropFilter: "blur(12px)",
+                maxWidth: "420px",
+            },
+            icon: "🌟",
+            iconTheme: {
+                primary: "#ffffff",
+                secondary: "transparent",
+            },
+        })
+
         setShowNotification(true)
 
         // Reset animation after delay
@@ -133,17 +157,17 @@ const CustomizableKits = () => {
     return (
         <div className="customizable-kits">
             {/* Kit Builder Header */}
-            <div className="kit-builder-header">
-                <div className="header-content">
-                    <div className="header-text">
-                        <div className="header-icon-wrapper">
-                            <div className="header-icon bounce">🛠️</div>
-                            <div className="header-title-wrapper">
-                                <h3 className="header-title">Custom Kit Builder</h3>
-                                <p className="header-subtitle">Build your perfect electronics kit by selecting individual components</p>
+            <div className="customizable-kits-kit-builder-header">
+                <div className="customizable-kits-header-content">
+                    <div className="customizable-kits-header-text">
+                        <div className="customizable-kits-header-icon-wrapper">
+                            <div className="customizable-kits-header-icon bounce">🛠️</div>
+                            <div className="customizable-kits-header-title-wrapper">
+                                <h3 className="customizable-kits-header-title">Custom Kit Builder</h3>
+                                <p className="customizable-kits-header-subtitle">Build your perfect electronics kit by selecting individual components</p>
                             </div>
                         </div>
-                        {/* <p className="header-description">
+                        {/* <p className="customizable-kits-header-description">
                             Choose from our premium collection of electronics components and watch them magically float into your
                             custom kit basket! Create exactly what you need for your next project.
                         </p> */}
@@ -155,7 +179,7 @@ const CustomizableKits = () => {
             <FloatingBasket ref={basketRef} basketItems={basketItems} animatingComponent={animatingComponent} />
 
             {/* Components Grid */}
-            <div className="components-grid">
+            <div className="customizable-kits-components-grid">
                 {components.map((component, index) => (
                     <ComponentCard
                         key={component.id}
@@ -167,16 +191,6 @@ const CustomizableKits = () => {
                     />
                 ))}
             </div>
-
-            {/* Success notification */}
-            {showNotification && (
-                <div className="success-notification">
-                    <div className="notification-content">
-                        <div className="notification-icon rotate">🛠️</div>
-                        <span className="notification-text">Component Added to Kit! 🎉</span>
-                    </div>
-                </div>
-            )}
         </div>
     )
 }

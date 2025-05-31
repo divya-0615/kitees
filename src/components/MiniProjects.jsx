@@ -13,9 +13,9 @@ const miniProjects = [
     price: 45.99,
     images: [
       "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://sandermechanical.com/wp-content/uploads/2016/02/shop-placeholder.png",
       "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://sandermechanical.com/wp-content/uploads/2016/02/shop-placeholder.png",
     ],
     description: "Build a WiFi-enabled temperature monitoring system with real-time alerts and data logging.",
     difficulty: "Beginner",
@@ -54,8 +54,9 @@ const miniProjects = [
     price: 38.99,
     images: [
       "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://sandermechanical.com/wp-content/uploads/2016/02/shop-placeholder.png",
       "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://sandermechanical.com/wp-content/uploads/2016/02/shop-placeholder.png",
     ],
     description: "Create a stunning LED matrix clock with customizable animations and weather display.",
     difficulty: "Intermediate",
@@ -94,9 +95,9 @@ const miniProjects = [
     price: 67.99,
     images: [
       "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://sandermechanical.com/wp-content/uploads/2016/02/shop-placeholder.png",
       "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://sandermechanical.com/wp-content/uploads/2016/02/shop-placeholder.png",
     ],
     description: "Build and program a smartphone-controlled robot car with obstacle avoidance.",
     difficulty: "Intermediate",
@@ -135,8 +136,9 @@ const miniProjects = [
     price: 52.99,
     images: [
       "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://sandermechanical.com/wp-content/uploads/2016/02/shop-placeholder.png",
       "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://sandermechanical.com/wp-content/uploads/2016/02/shop-placeholder.png",
     ],
     description: "Create ambient lighting that responds to voice commands and music beats.",
     difficulty: "Advanced",
@@ -174,8 +176,9 @@ const miniProjects = [
     price: 42.99,
     images: [
       "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://sandermechanical.com/wp-content/uploads/2016/02/shop-placeholder.png",
       "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://sandermechanical.com/wp-content/uploads/2016/02/shop-placeholder.png",
     ],
     description: "Build a comprehensive weather monitoring station with multiple sensors and data logging.",
     difficulty: "Beginner",
@@ -206,9 +209,9 @@ const miniProjects = [
     price: 89.99,
     images: [
       "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://sandermechanical.com/wp-content/uploads/2016/02/shop-placeholder.png",
       "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
+      "https://sandermechanical.com/wp-content/uploads/2016/02/shop-placeholder.png",
     ],
     description: "Build an advanced security system with motion detection, camera, and smartphone alerts.",
     difficulty: "Advanced",
@@ -272,42 +275,42 @@ const MiniProjects = () => {
 
   return (
     <>
-      <div className="mini-projects">
-        <div className="mini-projects-container">
+      <div className="mini-projects-section-mini-projects">
+        <div className="mini-projects-section-mini-projects-container">
           {/* Projects Header */}
-          <div className="projects-header">
-            <div className="header-badge">
-              <span className="badge-icon">🚀</span>
-              <span className="badge-text">Featured Projects</span>
+          <div className="mini-projects-section-projects-header">
+            <div className="mini-projects-section-header-badge">
+              <span className="mini-projects-section-badge-icon">🚀</span>
+              <span className="mini-projects-section-badge-text">Featured Projects</span>
             </div>
             <h2>Mini Projects Collection</h2>
-            <p className="mini-projects-subtitle">
+            <p className="mini-projects-section-mini-projects-subtitle">
               Professional-grade electronics projects with comprehensive guides, quality components, and expert support
             </p>
           </div>
 
           {/* Projects Grid */}
-          <div className="projects-grid">
+          <div className="mini-projects-section-projects-grid">
             {miniProjects.map((project, index) => (
-              <div key={project.id} className="project-card" style={{ "--delay": `${index * 0.1}s` }}>
+              <div key={project.id} className="mini-projects-section-project-card" style={{ "--delay": `${index * 0.1}s` }}>
                 {/* Project Image */}
-                <div className="project-image-container">
-                  <img src={project.images[0] || "/placeholder.svg"} alt={project.title} className="project-image" />
-                  <div className="category-badge" style={{ backgroundColor: getCategoryColor(project.category) }}>
+                <div className="mini-projects-section-project-image-container">
+                  <img src={project.images[0] || "/placeholder.svg"} alt={project.title} className="mini-projects-section-project-image" />
+                  <div className="mini-projects-section-category-badge" style={{ backgroundColor: getCategoryColor(project.category) }}>
                     {project.category}
                   </div>
-                  <div className="rating-badge">
-                    <span className="star">⭐</span>
+                  <div className="mini-projects-section-rating-badge">
+                    <span className="mini-projects-section-star">⭐</span>
                     <span>{project.rating}</span>
                   </div>
                 </div>
 
                 {/* Project Info */}
-                <div className="project-info">
-                  <div className="project-header">
+                <div className="mini-projects-section-project-info">
+                  <div className="mini-projects-section-project-header">
                     <h3>{project.title}</h3>
                     <span
-                      className={`difficulty-badge difficulty-${project.difficulty.toLowerCase()}`}
+                      className={`mini-projects-section-difficulty-badge mini-projects-section-difficulty-${project.difficulty.toLowerCase()}`}
                       style={{
                         backgroundColor: `${getDifficultyColor(project.difficulty)}15`,
                         color: getDifficultyColor(project.difficulty),
@@ -318,25 +321,25 @@ const MiniProjects = () => {
                     </span>
                   </div>
 
-                  <p className="project-description">{project.description}</p>
+                  <p className="mini-projects-section-project-description">{project.description}</p>
 
-                  <div className="project-stats">
-                    <div className="stat">
-                      <span className="stat-icon">⏱️</span>
+                  <div className="mini-projects-section-project-stats">
+                    <div className="mini-projects-section-stat">
+                      <span className="mini-projects-section-stat-icon">⏱️</span>
                       <span>{project.duration}</span>
                     </div>
-                    <div className="stat">
-                      <span className="stat-icon">📦</span>
+                    <div className="mini-projects-section-stat">
+                      <span className="mini-projects-section-stat-icon">📦</span>
                       <span>{project.components.length} components</span>
                     </div>
                   </div>
 
-                  <div className="project-footer">
-                    <div className="project-price">
-                      <span className="price-currency">$</span>
-                      <span className="price-value">{project.price}</span>
+                  <div className="mini-projects-section-project-footer">
+                    <div className="mini-projects-section-project-price">
+                      <span className="mini-projects-section-price-currency">₹</span>
+                      <span className="mini-projects-section-price-value">{project.price}</span>
                     </div>
-                    <button className="view-details-btn" onClick={() => setSelectedProject(project)}>
+                    <button className="mini-projects-section-view-details-btn" onClick={() => setSelectedProject(project)}>
                       View Details
                     </button>
                   </div>
@@ -346,9 +349,9 @@ const MiniProjects = () => {
           </div>
 
           {/* Custom Project Section */}
-          <div className="custom-project-section">
-            <div className="custom-project-content">
-              <div className="custom-project-icon">
+          <div className="mini-projects-section-custom-project-section">
+            <div className="mini-projects-section-custom-project-content">
+              <div className="mini-projects-section-custom-project-icon">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="3" />
                   <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" />
@@ -359,7 +362,7 @@ const MiniProjects = () => {
                 Need something specific? Our engineering team specializes in creating custom electronics projects
                 tailored to your exact requirements with professional documentation and support.
               </p>
-              <button className="create-project-btn" onClick={() => setShowCustomProject(true)}>
+              <button className="mini-projects-section-create-project-btn" onClick={() => setShowCustomProject(true)}>
                 Start Custom Project
               </button>
             </div>

@@ -1,3 +1,4 @@
+// /src/pages/MyOrders.jsx
 "use client"
 
 import { useState, useEffect } from "react"
@@ -8,6 +9,8 @@ import Header from "../components/Header"
 import Footer from "../components/Footer"
 import ProtectedRoute from "../components/ProtectedRoute"
 import "./MyOrders.css"
+import { ChevronDown, ChevronUp } from "lucide-react"
+import { generateReceiptPDF } from "../components/GenerateReceiptPDF"
 
 const MyOrders = () => {
     const { userData } = useAuth()
@@ -20,29 +23,41 @@ const MyOrders = () => {
 
     useEffect(() => {
         if (userData?.email) {
-            fetchOrders()
+            fetchOrdersForCurrentUser()
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userData?.email])
-    console.log("User Data:", userData)
-    const fetchOrders = async () => {
+
+    const fetchOrdersForCurrentUser = async () => {
+        setLoading(true)
         try {
-            setLoading(true)
             const ordersRef = collection(db, "all-orders")
-            const q = query(ordersRef, where("customerDetails.email", "==", userData.email), orderBy("createdAt", "desc"))
-
+            const q = query(
+                ordersRef,
+                where("customerDetails.email", "==", userData.email),
+                orderBy("createdAt", "desc")
+            )
             const querySnapshot = await getDocs(q)
-            const ordersData = []
+            const fetched = []
 
-            querySnapshot.forEach((doc) => {
-                ordersData.push({
-                    id: doc.id,
-                    ...doc.data(),
+            querySnapshot.forEach((docSnap) => {
+                const data = docSnap.data()
+                let createdAt = data.createdAt
+                if (createdAt && typeof createdAt.toDate === "function") {
+                    createdAt = createdAt.toDate()
+                }
+
+                fetched.push({
+                    id: docSnap.id,
+                    ...data,
+                    createdAt,
                 })
             })
 
-            setOrders(ordersData)
+            setOrders(fetched)
         } catch (error) {
             console.error("Error fetching orders:", error)
+            setOrders([])
         } finally {
             setLoading(false)
         }
@@ -82,20 +97,27 @@ const MyOrders = () => {
         }
     }
 
+    // Apply searchTerm & statusFilter, then sort by sortBy
     const filteredOrders = orders
         .filter((order) => {
             const matchesSearch =
                 order.orderId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                order.items?.some((item) => item.name?.toLowerCase().includes(searchTerm.toLowerCase()))
-            const matchesStatus = statusFilter === "all" || order.status?.toLowerCase() === statusFilter.toLowerCase()
+                order.items?.some((item) =>
+                    item.name?.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+
+            const matchesStatus =
+                statusFilter === "all" ||
+                (order.status && order.status.toLowerCase() === statusFilter.toLowerCase())
+
             return matchesSearch && matchesStatus
         })
         .sort((a, b) => {
             switch (sortBy) {
                 case "newest":
-                    return new Date(b.createdAt?.toDate?.() || b.createdAt) - new Date(a.createdAt?.toDate?.() || a.createdAt)
+                    return new Date(b.createdAt) - new Date(a.createdAt)
                 case "oldest":
-                    return new Date(a.createdAt?.toDate?.() || a.createdAt) - new Date(b.createdAt?.toDate?.() || b.createdAt)
+                    return new Date(a.createdAt) - new Date(b.createdAt)
                 case "amount-high":
                     return (b.totalAmount || 0) - (a.totalAmount || 0)
                 case "amount-low":
@@ -109,23 +131,6 @@ const MyOrders = () => {
         setExpandedOrder(expandedOrder === orderId ? null : orderId)
     }
 
-    if (loading) {
-        return (
-            <ProtectedRoute message="Please login to view your orders">
-                <div className="my-orders-container">
-                    <Header />
-                    <main className="my-orders-main">
-                        <div className="my-orders-loading">
-                            <div className="loading-spinner"></div>
-                            <p>Loading your orders...</p>
-                        </div>
-                    </main>
-                    <Footer />
-                </div>
-            </ProtectedRoute>
-        )
-    }
-
     return (
         <ProtectedRoute message="Please login to view your orders">
             <div className="my-orders-container">
@@ -136,7 +141,9 @@ const MyOrders = () => {
                         <div className="my-orders-header">
                             <div className="header-info">
                                 <h1 className="page-title">My Orders</h1>
-                                <p className="page-subtitle">Welcome back, {userData?.name}! Here are all your orders.</p>
+                                <p className="page-subtitle">
+                                    Welcome back, {userData?.name}! Here are all your orders.
+                                </p>
                                 <div className="orders-stats">
                                     <div className="stat-item">
                                         <span className="stat-number">{orders.length}</span>
@@ -144,7 +151,10 @@ const MyOrders = () => {
                                     </div>
                                     <div className="stat-item">
                                         <span className="stat-number">
-                                            ₹{orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0).toFixed(2)}
+                                            ₹
+                                            {orders
+                                                .reduce((sum, order) => sum + (order.totalAmount || 0), 0)
+                                                .toFixed(2)}
                                         </span>
                                         <span className="stat-label">Total Spent</span>
                                     </div>
@@ -185,7 +195,11 @@ const MyOrders = () => {
 
                                 <div className="filter-group">
                                     <label>Sort by:</label>
-                                    <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="filter-select">
+                                    <select
+                                        value={sortBy}
+                                        onChange={(e) => setSortBy(e.target.value)}
+                                        className="filter-select"
+                                    >
                                         <option value="newest">Newest First</option>
                                         <option value="oldest">Oldest First</option>
                                         <option value="amount-high">Amount: High to Low</option>
@@ -195,7 +209,12 @@ const MyOrders = () => {
                             </div>
                         </div>
 
-                        {filteredOrders.length === 0 ? (
+                        {loading ? (
+                            <div className="my-orders-loading">
+                                <div className="loading-spinner"></div>
+                                <p>Loading your orders...</p>
+                            </div>
+                        ) : filteredOrders.length === 0 ? (
                             <div className="no-orders">
                                 <div className="no-orders-icon">📦</div>
                                 <h3>No Orders Found</h3>
@@ -204,7 +223,10 @@ const MyOrders = () => {
                                         ? "You haven't placed any orders yet. Start shopping to see your orders here!"
                                         : "No orders match your current search criteria."}
                                 </p>
-                                <button className="shop-now-btn" onClick={() => (window.location.href = "/")}>
+                                <button
+                                    className="shop-now-btn"
+                                    onClick={() => (window.location.href = "/")}
+                                >
                                     Start Shopping
                                 </button>
                             </div>
@@ -212,13 +234,23 @@ const MyOrders = () => {
                             <div className="orders-list">
                                 {filteredOrders.map((order) => (
                                     <div key={order.id} className="order-card">
-                                        <div className="order-header" onClick={() => toggleOrderExpansion(order.id)}>
+                                        <div
+                                            className="order-header"
+                                            onClick={() => toggleOrderExpansion(order.id)}
+                                        >
                                             <div className="order-main-info">
                                                 <div className="order-id-section">
                                                     <h3 className="order-id">#{order.orderId}</h3>
-                                                    <div className="order-status" style={{ backgroundColor: getStatusColor(order.status) }}>
-                                                        <span className="status-icon">{getStatusIcon(order.status)}</span>
-                                                        <span className="status-text">{order.status || "Pending"}</span>
+                                                    <div
+                                                        className="order-status"
+                                                        style={{ backgroundColor: getStatusColor(order.status) }}
+                                                    >
+                                                        <span className="status-icon">
+                                                            {getStatusIcon(order.status)}
+                                                        </span>
+                                                        <span className="status-text">
+                                                            {order.status || "Pending"}
+                                                        </span>
                                                     </div>
                                                 </div>
 
@@ -233,14 +265,18 @@ const MyOrders = () => {
                                                     </div>
                                                     <div className="meta-item">
                                                         <span className="meta-icon">📦</span>
-                                                        <span>{order.itemCount} items</span>
+                                                        <span>{order.totalQuantity} items</span>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div className="order-amount-section">
-                                                <div className="order-amount">₹{order.totalAmount?.toFixed(2)}</div>
-                                                <div className="expand-icon">{expandedOrder === order.id ? "▲" : "▼"}</div>
+                                                <div className="order-amount">
+                                                    ₹{order.totalAmount?.toFixed(2)}
+                                                </div>
+                                                <div className="expand-icon">
+                                                    {expandedOrder === order.id ? <ChevronUp /> : <ChevronDown />}
+                                                </div>
                                             </div>
                                         </div>
 
@@ -252,7 +288,8 @@ const MyOrders = () => {
                                                         <div className="address-details">
                                                             <p>{order.shippingAddress?.address}</p>
                                                             <p>
-                                                                {order.shippingAddress?.city}, {order.shippingAddress?.state}
+                                                                {order.shippingAddress?.city},{" "}
+                                                                {order.shippingAddress?.state}
                                                             </p>
                                                             <p>PIN: {order.shippingAddress?.pincode}</p>
                                                         </div>
@@ -261,9 +298,19 @@ const MyOrders = () => {
                                                     <div className="payment-info">
                                                         <h4>💳 Payment Details</h4>
                                                         <div className="payment-details">
-                                                            <p>Method: {order.paymentMethod?.toUpperCase()}</p>
-                                                            <p>Amount: ₹{order.totalAmount?.toFixed(2)}</p>
-                                                            <p>Items: {order.totalQuantity} pieces</p>
+                                                            <p>
+                                                                Method: {order.paymentMethod?.toUpperCase()}
+                                                            </p>
+                                                            <p>
+                                                                Subtotal: ₹{order.subtotalAmount?.toFixed(2)}
+                                                            </p>
+                                                            <p>
+                                                                Shipping: ₹{order.shippingCharge?.toFixed(2)}
+                                                            </p>
+                                                            <p>
+                                                                Total: ₹{order.totalAmount?.toFixed(2)}
+                                                            </p>
+                                                            <p>Items: {order.totalQuantity} pcs</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -274,22 +321,44 @@ const MyOrders = () => {
                                                         {order.items?.map((item, index) => (
                                                             <div key={index} className="order-item">
                                                                 <img
-                                                                    src={item.image || "/placeholder.svg?height=60&width=60"}
+                                                                    src={
+                                                                        item.image ||
+                                                                        "/placeholder.svg?height=60&width=60"
+                                                                    }
                                                                     alt={item.name}
                                                                     className="item-image"
                                                                 />
                                                                 <div className="item-details">
                                                                     <h5 className="item-name">{item.name}</h5>
-                                                                    <p className="item-type">{item.type || "Product"}</p>
+                                                                    <p className="item-type">
+                                                                        {item.type || "Product"}
+                                                                    </p>
                                                                     {item.components && item.components.length > 0 && (
-                                                                        <p className="item-components">{item.components.length} components included</p>
+                                                                        <div className="item-components-list">
+                                                                            <strong>Components:</strong>
+                                                                            <ul>
+                                                                                {item.components.map((comp, idx2) => (
+                                                                                    <li key={idx2}>
+                                                                                        {comp.name}
+                                                                                        {comp.quantity
+                                                                                            ? ` x${comp.quantity}`
+                                                                                            : ""}
+                                                                                        {comp.price !== undefined
+                                                                                            ? ` — ₹${Number(comp.price).toFixed(2)}`
+                                                                                            : ""}
+                                                                                    </li>
+                                                                                ))}
+                                                                            </ul>
+                                                                        </div>
                                                                     )}
                                                                 </div>
                                                                 <div className="item-quantity">
                                                                     <span>Qty: {item.quantity}</span>
                                                                 </div>
                                                                 <div className="item-price">
-                                                                    <span>₹{(item.price * item.quantity).toFixed(2)}</span>
+                                                                    <span>
+                                                                        ₹{(item.price * item.quantity).toFixed(2)}
+                                                                    </span>
                                                                 </div>
                                                             </div>
                                                         ))}
@@ -297,9 +366,17 @@ const MyOrders = () => {
                                                 </div>
 
                                                 <div className="order-actions">
-                                                    <button className="action-btn track-btn">📍 Track Order</button>
-                                                    <button className="action-btn download-btn">📄 Download Invoice</button>
-                                                    <button className="action-btn support-btn">💬 Contact Support</button>
+                                                    <button className="action-btn track-btn">
+                                                        📍 Track Order
+                                                    </button>
+                                                    <button className="action-btn download-btn" onClick={() => {
+                                                        generateReceiptPDF(order);
+                                                    }}>
+                                                        📄 Download Invoice
+                                                    </button>
+                                                    <button className="action-btn support-btn">
+                                                        💬 Contact Support
+                                                    </button>
                                                 </div>
                                             </div>
                                         )}
