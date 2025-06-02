@@ -197,8 +197,8 @@ const AvailableKits = () => {
 
                   <div className="kit-pricing">
                     <div className="kit-price-section">
-                      <div className="kit-price">${kit.price}</div>
-                      {kit.originalPrice && <div className="kit-original-price">${kit.originalPrice}</div>}
+                      <div className="kit-price">₹{kit.price}</div>
+                      {kit.originalPrice && <div className="kit-original-price">₹{kit.originalPrice}</div>}
                     </div>
                   </div>
                 </div>

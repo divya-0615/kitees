@@ -42,6 +42,7 @@ const LoginPage = () => {
         try {
             // Admin Login
             if (formData.email === "kitees@gmail.com" && formData.password === "admin1234") {
+                await login(formData.email, formData.password)
                 setSuccess("Admin authentication successful! Redirecting to admin panel...")
                 toast.success("Login successful...!")  // ✅ Show toast
                 setTimeout(() => {

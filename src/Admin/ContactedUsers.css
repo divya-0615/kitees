@@ -1,0 +1,332 @@
+.admin-page-contacted-users {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.admin-page-contacts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  padding: 24px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
+}
+
+.admin-page-contacts-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+}
+
+.admin-page-contacts-subtitle {
+  font-size: 16px;
+  color: #64748b;
+  margin: 0;
+}
+
+.admin-page-contacts-stats {
+  display: flex;
+  gap: 24px;
+}
+
+.admin-page-contacts-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f1f5f9;
+}
+
+.admin-page-no-contacts {
+  text-align: center;
+  padding: 64px 32px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
+}
+
+.admin-page-no-contacts-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.admin-page-no-contacts h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+}
+
+.admin-page-no-contacts p {
+  font-size: 16px;
+  color: #64748b;
+  margin: 0;
+}
+
+.admin-page-contacts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-page-contact-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  animation: admin-page-fadeInUp 0.4s ease-out forwards;
+  animation-delay: var(--delay);
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.admin-page-contact-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.admin-page-contact-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.admin-page-contact-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-page-avatar-text {
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.admin-page-contact-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-page-contact-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.admin-page-contact-email {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.admin-page-contact-date {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.admin-page-contact-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.admin-page-contact-content {
+  margin-bottom: 16px;
+}
+
+.admin-page-contact-subject {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-page-subject-icon {
+  font-size: 16px;
+}
+
+.admin-page-subject-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.admin-page-contact-message {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.admin-page-contact-message p {
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.admin-page-contact-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.admin-page-contact-phone {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.admin-page-contact-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-page-reply-btn {
+  background: #10b981;
+  color: white;
+}
+
+.admin-page-reply-btn:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.admin-page-contact-detail-modal {
+  max-width: 900px;
+}
+
+.admin-page-contact-id-badge {
+  background: #7c3aed;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: "Courier New", monospace;
+}
+
+.admin-page-subject-display {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-page-message-section {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-page-message-content {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #374151;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-page-message-content p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.admin-page-new-btn {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.admin-page-new-btn:hover:not(:disabled) {
+  background: #bfdbfe;
+}
+
+.admin-page-replied-btn {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.admin-page-replied-btn:hover:not(:disabled) {
+  background: #bbf7d0;
+}
+
+.admin-page-resolved-btn {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.admin-page-resolved-btn:hover:not(:disabled) {
+  background: #a7f3d0;
+}
+
+@media (max-width: 768px) {
+  .admin-page-contacted-users {
+    padding: 16px;
+  }
+
+  .admin-page-contacts-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .admin-page-contacts-stats {
+    justify-content: space-around;
+  }
+
+  .admin-page-contact-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .admin-page-contact-badges {
+    align-self: stretch;
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+
+  .admin-page-contact-footer {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .admin-page-status-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+}

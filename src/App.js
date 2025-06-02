@@ -9,6 +9,7 @@ import SignupPage from "./Authentication/SignupPage.jsx";
 import MyOrders from "./Pages/MyOrders.jsx";
 import { Toaster } from "react-hot-toast";
 import ScrollToTop from "./contexts/ScrollTop.jsx";
+import AdminPanel from "./Pages/AdminPanel.jsx";
 function App() {
   return (
     <AuthProvider>
@@ -23,6 +24,8 @@ function App() {
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/myorders" element={<MyOrders />} />
+              
+              <Route path="/admin" element={<AdminPanel />} />
             </Routes>
           </div>
         </Router>
