@@ -1,22 +1,23 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { collection, getDocs, query, orderBy, limit } from "firebase/firestore"
-import { db } from "../firebase"
 import "./Dashboard.css"
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    PieChart,
+    Pie,
+    Cell,
+    Legend,
+} from "recharts"
+import { ArrowUp, ArrowDown, Package, Users, DollarSign, Clock, TrendingUp } from "lucide-react"
 
-const DashboardOverview = () => {
-    const [dashboardData, setDashboardData] = useState({
-        totalOrders: 0,
-        totalUsers: 0,
-        totalRevenue: 0,
-        pendingOrders: 0,
-        recentOrders: [],
-        ordersByStatus: {},
-        monthlyRevenue: [],
-        topProducts: [],
-    })
-    const [loading, setLoading] = useState(true)
+const DashboardOverview = ({ data, loading }) => {
     const [animatedStats, setAnimatedStats] = useState({
         totalOrders: 0,
         totalUsers: 0,
@@ -25,161 +26,33 @@ const DashboardOverview = () => {
     })
 
     useEffect(() => {
-        fetchDashboardData()
-    }, [])
-
-    useEffect(() => {
-        // Animate numbers when data loads
-        if (dashboardData.totalOrders > 0) {
-            animateNumbers()
-        }
-    }, [dashboardData])
-
-    const fetchDashboardData = async () => {
-        try {
-            setLoading(true)
-
-            // Fetch orders
-            const ordersRef = collection(db, "all-orders")
-            const ordersQuery = query(ordersRef, orderBy("createdAt", "desc"))
-            const ordersSnapshot = await getDocs(ordersQuery)
-
-            let totalRevenue = 0
-            let ordersByStatus = {}
-            const orders = []
-
-            ordersSnapshot.forEach((doc) => {
-                const orderData = doc.data()
-                orders.push({ id: doc.id, ...orderData })
-
-                if (orderData.totalAmount) {
-                    totalRevenue += orderData.totalAmount
-                }
-
-                const status = orderData.status || 'pending'
-                ordersByStatus[status] = (ordersByStatus[status] || 0) + 1
-            })
-
-            // Fetch users
-            const usersRef = collection(db, "users")
-            const usersSnapshot = await getDocs(usersRef)
-            const totalUsers = usersSnapshot.size
-
-            // Fetch recent orders (last 5)
-            const recentOrdersQuery = query(ordersRef, orderBy("createdAt", "desc"), limit(5))
-            const recentOrdersSnapshot = await getDocs(recentOrdersQuery)
-            const recentOrders = []
-
-            recentOrdersSnapshot.forEach((doc) => {
-                const data = doc.data()
-                let createdAt = data.createdAt
-                if (createdAt && typeof createdAt.toDate === "function") {
-                    createdAt = createdAt.toDate()
-                }
-                recentOrders.push({ id: doc.id, ...data, createdAt })
-            })
-
-            // Calculate monthly revenue (last 6 months)
-            const monthlyRevenue = calculateMonthlyRevenue(orders)
-
-            // Get top products
-            const topProducts = getTopProducts(orders)
-
-            setDashboardData({
-                totalOrders: orders.length,
-                totalUsers,
-                totalRevenue,
-                pendingOrders: ordersByStatus.pending || 0,
-                recentOrders,
-                ordersByStatus,
-                monthlyRevenue,
-                topProducts,
-            })
-        } catch (error) {
-            console.error("Error fetching dashboard data:", error)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const calculateMonthlyRevenue = (orders) => {
-        const months = {}
-        const now = new Date()
-
-        // Initialize last 6 months
-        for (let i = 5; i >= 0; i--) {
-            const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
-            const monthKey = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-            months[monthKey] = 0
-        }
-
-        orders.forEach(order => {
-            if (order.createdAt && order.totalAmount) {
-                const orderDate = order.createdAt instanceof Date ? order.createdAt : new Date(order.createdAt)
-                const monthKey = orderDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-                if (months.hasOwnProperty(monthKey)) {
-                    months[monthKey] += order.totalAmount
-                }
+        // Animate numbers on load
+        if (!loading && data) {
+            const animateNumber = (key, target) => {
+                let current = 0
+                const increment = target / 50
+                const timer = setInterval(() => {
+                    current += increment
+                    if (current >= target) {
+                        current = target
+                        clearInterval(timer)
+                    }
+                    setAnimatedStats((prev) => ({ ...prev, [key]: Math.floor(current) }))
+                }, 30)
             }
-        })
 
-        return Object.entries(months).map(([month, revenue]) => ({ month, revenue }))
-    }
-
-    const getTopProducts = (orders) => {
-        const productCount = {}
-
-        orders.forEach(order => {
-            if (order.items) {
-                order.items.forEach(item => {
-                    const productName = item.name || 'Unknown Product'
-                    productCount[productName] = (productCount[productName] || 0) + (item.quantity || 1)
-                })
-            }
-        })
-
-        return Object.entries(productCount)
-            .sort(([, a], [, b]) => b - a)
-            .slice(0, 5)
-            .map(([name, count]) => ({ name, count }))
-    }
-
-    const animateNumbers = () => {
-        const animateNumber = (key, target) => {
-            let current = 0
-            const increment = target / 50
-            const timer = setInterval(() => {
-                current += increment
-                if (current >= target) {
-                    current = target
-                    clearInterval(timer)
-                }
-                setAnimatedStats((prev) => ({ ...prev, [key]: Math.floor(current) }))
-            }, 30)
+            animateNumber("totalOrders", data.totalOrders)
+            animateNumber("totalUsers", data.totalUsers)
+            animateNumber("totalRevenue", data.totalRevenue)
+            animateNumber("pendingOrders", data.pendingOrders)
         }
-
-        animateNumber("totalOrders", dashboardData.totalOrders)
-        animateNumber("totalUsers", dashboardData.totalUsers)
-        animateNumber("totalRevenue", dashboardData.totalRevenue)
-        animateNumber("pendingOrders", dashboardData.pendingOrders)
-    }
-
-    const getStatusColor = (status) => {
-        switch (status?.toLowerCase()) {
-            case "confirmed": return "#10b981"
-            case "processing": return "#f59e0b"
-            case "shipped": return "#3b82f6"
-            case "delivered": return "#059669"
-            case "cancelled": return "#ef4444"
-            default: return "#6b7280"
-        }
-    }
+    }, [data, loading])
 
     const statsCards = [
         {
             title: "Total Orders",
             value: animatedStats.totalOrders,
-            icon: "📦",
+            icon: <Package size={24} />,
             color: "#3b82f6",
             trend: "+12%",
             trendUp: true,
@@ -187,7 +60,7 @@ const DashboardOverview = () => {
         {
             title: "Total Users",
             value: animatedStats.totalUsers,
-            icon: "👥",
+            icon: <Users size={24} />,
             color: "#10b981",
             trend: "+8%",
             trendUp: true,
@@ -195,7 +68,7 @@ const DashboardOverview = () => {
         {
             title: "Total Revenue",
             value: `₹${animatedStats.totalRevenue.toLocaleString()}`,
-            icon: "💰",
+            icon: <DollarSign size={24} />,
             color: "#f59e0b",
             trend: "+15%",
             trendUp: true,
@@ -203,16 +76,28 @@ const DashboardOverview = () => {
         {
             title: "Pending Orders",
             value: animatedStats.pendingOrders,
-            icon: "⏳",
+            icon: <Clock size={24} />,
             color: "#ef4444",
             trend: "-5%",
             trendUp: false,
         },
     ]
 
+    // Colors for pie chart
+    const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"]
+
+    // Sample data for product categories distribution
+    const categoryData = [
+        { name: "Microcontroller", value: 35 },
+        { name: "IoT", value: 25 },
+        { name: "Robotics", value: 20 },
+        { name: "Display", value: 15 },
+        { name: "Sensors", value: 5 },
+    ]
+
     if (loading) {
         return (
-            <div className="admin-page-loading">
+            <div className="admin-page-dashboard-loading">
                 <div className="admin-page-loading-spinner"></div>
                 <p>Loading dashboard data...</p>
             </div>
@@ -228,18 +113,22 @@ const DashboardOverview = () => {
                         Monitor your e-commerce performance and manage your electronics business efficiently
                     </p>
                 </div>
-                <div className="admin-page-welcome-icon">⚡</div>
+                <div className="admin-page-welcome-icon">
+                    <TrendingUp size={48} />
+                </div>
             </div>
 
             <div className="admin-page-stats-grid">
                 {statsCards.map((stat, index) => (
                     <div key={stat.title} className="admin-page-stat-card" style={{ "--delay": `${index * 0.1}s` }}>
                         <div className="admin-page-stat-header">
-                            <div className="admin-page-stat-icon" style={{ backgroundColor: `${stat.color}20`, color: stat.color }}>
+                            <div className="admin-page-stat-icon" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
                                 {stat.icon}
                             </div>
                             <div className={`admin-page-stat-trend ${stat.trendUp ? "up" : "down"}`}>
-                                <span className="admin-page-trend-icon">{stat.trendUp ? "↗️" : "↘️"}</span>
+                                <span className="admin-page-trend-icon">
+                                    {stat.trendUp ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+                                </span>
                                 <span className="admin-page-trend-value">{stat.trend}</span>
                             </div>
                         </div>
@@ -251,16 +140,85 @@ const DashboardOverview = () => {
                 ))}
             </div>
 
+            <div className="admin-page-charts-grid">
+                {/* Monthly Sales Chart */}
+                <div className="admin-page-chart-card">
+                    <div className="admin-page-chart-header">
+                        <h3 className="admin-page-chart-title">Monthly Sales</h3>
+                        <div className="admin-page-chart-actions">
+                            <select className="admin-page-chart-select">
+                                <option value="6months">Last 6 Months</option>
+                                <option value="3months">Last 3 Months</option>
+                                <option value="1year">Last Year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div className="admin-page-chart-content">
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart data={data.monthlySales || []}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                                <YAxis axisLine={false} tickLine={false} />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: "#fff",
+                                        border: "none",
+                                        borderRadius: "8px",
+                                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                                    }}
+                                />
+                                <Bar dataKey="revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                {/* Product Categories Chart */}
+                <div className="admin-page-chart-card">
+                    <div className="admin-page-chart-header">
+                        <h3 className="admin-page-chart-title">Product Categories</h3>
+                    </div>
+                    <div className="admin-page-chart-content">
+                        <ResponsiveContainer width="100%" height={300}>
+                            <PieChart>
+                                <Pie
+                                    data={categoryData}
+                                    cx="50%"
+                                    cy="50%"
+                                    labelLine={false}
+                                    outerRadius={100}
+                                    fill="#8884d8"
+                                    dataKey="value"
+                                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                >
+                                    {categoryData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Legend layout="vertical" verticalAlign="middle" align="right" />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: "#fff",
+                                        border: "none",
+                                        borderRadius: "8px",
+                                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                                    }}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+            </div>
+
             <div className="admin-page-dashboard-grid">
-                {/* Recent Orders */}
                 <div className="admin-page-recent-orders">
                     <div className="admin-page-section-header">
                         <h3 className="admin-page-section-title">Recent Orders</h3>
                         <button className="admin-page-view-all-btn">View All</button>
                     </div>
                     <div className="admin-page-orders-list">
-                        {dashboardData.recentOrders.length > 0 ? (
-                            dashboardData.recentOrders.map((order) => (
+                        {data.recentOrders && data.recentOrders.length > 0 ? (
+                            data.recentOrders.map((order) => (
                                 <div key={order.id} className="admin-page-order-item">
                                     <div className="admin-page-order-info">
                                         <div className="admin-page-order-id">#{order.orderId}</div>
@@ -276,114 +234,76 @@ const DashboardOverview = () => {
                             ))
                         ) : (
                             <div className="admin-page-empty-state">
-                                <span className="admin-page-empty-icon">📦</span>
+                                <span className="admin-page-empty-icon">
+                                    <Package size={32} />
+                                </span>
                                 <p>No recent orders</p>
                             </div>
                         )}
                     </div>
                 </div>
 
-                {/* Revenue Chart */}
-                <div className="admin-page-revenue-chart">
-                    <div className="admin-page-section-header">
-                        <h3 className="admin-page-section-title">Monthly Revenue</h3>
-                    </div>
-                    <div className="admin-page-chart-container">
-                        {dashboardData.monthlyRevenue.map((data, index) => {
-                            const maxRevenue = Math.max(...dashboardData.monthlyRevenue.map(d => d.revenue))
-                            const height = maxRevenue > 0 ? (data.revenue / maxRevenue) * 100 : 0
-
-                            return (
-                                <div key={data.month} className="admin-page-chart-bar-container">
-                                    <div
-                                        className="admin-page-chart-bar"
-                                        style={{
-                                            height: `${height}%`,
-                                            animationDelay: `${index * 0.1}s`
-                                        }}
-                                    >
-                                        <div className="admin-page-chart-value">₹{data.revenue.toLocaleString()}</div>
+                <div className="admin-page-dashboard-side">
+                    <div className="admin-page-top-products">
+                        <div className="admin-page-section-header">
+                            <h3 className="admin-page-section-title">Top Products</h3>
+                        </div>
+                        <div className="admin-page-products-list">
+                            {data.topProducts && data.topProducts.length > 0 ? (
+                                data.topProducts.map((product, index) => (
+                                    <div key={index} className="admin-page-product-item">
+                                        <div className="admin-page-product-rank">{index + 1}</div>
+                                        <div className="admin-page-product-info">
+                                            <div className="admin-page-product-name">{product.name}</div>
+                                            <div className="admin-page-product-count">{product.count} units sold</div>
+                                        </div>
                                     </div>
-                                    <div className="admin-page-chart-label">{data.month}</div>
+                                ))
+                            ) : (
+                                <div className="admin-page-empty-state">
+                                    <span className="admin-page-empty-icon">
+                                        <Package size={32} />
+                                    </span>
+                                    <p>No product data available</p>
                                 </div>
-                            )
-                        })}
+                            )}
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <div className="admin-page-analytics-grid">
-                {/* Order Status Distribution */}
-                <div className="admin-page-status-distribution">
-                    <div className="admin-page-section-header">
-                        <h3 className="admin-page-section-title">Order Status Distribution</h3>
-                    </div>
-                    <div className="admin-page-status-chart">
-                        {Object.entries(dashboardData.ordersByStatus).map(([status, count]) => {
-                            const percentage = dashboardData.totalOrders > 0 ? (count / dashboardData.totalOrders) * 100 : 0
-
-                            return (
-                                <div key={status} className="admin-page-status-item">
-                                    <div className="admin-page-status-info">
-                                        <span className="admin-page-status-name">{status}</span>
-                                        <span className="admin-page-status-count">{count}</span>
-                                    </div>
-                                    <div className="admin-page-status-bar">
-                                        <div
-                                            className="admin-page-status-fill"
-                                            style={{
-                                                width: `${percentage}%`,
-                                                backgroundColor: getStatusColor(status)
-                                            }}
-                                        ></div>
-                                    </div>
-                                    <span className="admin-page-status-percentage">{percentage.toFixed(1)}%</span>
+                    <div className="admin-page-performance-metrics">
+                        <div className="admin-page-section-header">
+                            <h3 className="admin-page-section-title">Performance Metrics</h3>
+                        </div>
+                        <div className="admin-page-metrics-grid">
+                            <div className="admin-page-metric-card">
+                                <div className="admin-page-metric-header">
+                                    <h4>Order Completion Rate</h4>
+                                    <span className="admin-page-metric-percentage">94%</span>
                                 </div>
-                            )
-                        })}
-                    </div>
-                </div>
-
-                {/* Top Products */}
-                <div className="admin-page-top-products">
-                    <div className="admin-page-section-header">
-                        <h3 className="admin-page-section-title">Top Products</h3>
-                    </div>
-                    <div className="admin-page-products-list">
-                        {dashboardData.topProducts.map((product, index) => (
-                            <div key={product.name} className="admin-page-product-item">
-                                <div className="admin-page-product-rank">#{index + 1}</div>
-                                <div className="admin-page-product-info">
-                                    <div className="admin-page-product-name">{product.name}</div>
-                                    <div className="admin-page-product-sales">{product.count} sold</div>
+                                <div className="admin-page-progress-bar">
+                                    <div className="admin-page-progress-fill" style={{ width: "94%" }}></div>
                                 </div>
                             </div>
-                        ))}
+                            <div className="admin-page-metric-card">
+                                <div className="admin-page-metric-header">
+                                    <h4>Customer Satisfaction</h4>
+                                    <span className="admin-page-metric-percentage">98%</span>
+                                </div>
+                                <div className="admin-page-progress-bar">
+                                    <div className="admin-page-progress-fill" style={{ width: "98%" }}></div>
+                                </div>
+                            </div>
+                            <div className="admin-page-metric-card">
+                                <div className="admin-page-metric-header">
+                                    <h4>Inventory Turnover</h4>
+                                    <span className="admin-page-metric-percentage">87%</span>
+                                </div>
+                                <div className="admin-page-progress-bar">
+                                    <div className="admin-page-progress-fill" style={{ width: "87%" }}></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-
-            <div className="admin-page-quick-actions">
-                <div className="admin-page-section-header">
-                    <h3 className="admin-page-section-title">Quick Actions</h3>
-                </div>
-                <div className="admin-page-actions-grid">
-                    <button className="admin-page-action-btn">
-                        <span className="admin-page-action-icon">➕</span>
-                        <span>Add New Kit</span>
-                    </button>
-                    <button className="admin-page-action-btn">
-                        <span className="admin-page-action-icon">🚀</span>
-                        <span>Add Project</span>
-                    </button>
-                    <button className="admin-page-action-btn">
-                        <span className="admin-page-action-icon">📊</span>
-                        <span>View Analytics</span>
-                    </button>
-                    <button className="admin-page-action-btn">
-                        <span className="admin-page-action-icon">👥</span>
-                        <span>Manage Users</span>
-                    </button>
                 </div>
             </div>
         </div>

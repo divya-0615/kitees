@@ -4,10 +4,11 @@ import { useState, useEffect } from "react"
 import { collection, addDoc, getDocs, query, orderBy } from "firebase/firestore"
 import { db } from "../firebase"
 import "./MiniProjects.css"
+import ProjectDetailModal from "../components/ProjectDetailModal"
 
 const MiniProjectsAdmin = () => {
     const [showForm, setShowForm] = useState(false)
-    const [showPreview, setShowPreview] = useState(false)
+    const [showPreview, setShowPreview] = useState(true)
     const [projects, setProjects] = useState([])
     const [loading, setLoading] = useState(false)
     const [searchTerm, setSearchTerm] = useState("")
@@ -576,30 +577,25 @@ const MiniProjectsAdmin = () => {
                     ) : (
                         <div className="admin-page-projects-grid">
                             {filteredProjects.map((project, index) => (
-                                <div key={project.id} className="admin-page-project-card" style={{ "--delay": `${index * 0.1}s` }}>
-                                    <div className="admin-page-project-image-container">
-                                        <img
-                                            src={project.images?.[0] || "/placeholder.svg?height=200&width=300"}
-                                            alt={project.title}
-                                            className="admin-page-project-image"
-                                        />
-                                        <div
-                                            className="admin-page-project-category-badge"
-                                            style={{ backgroundColor: getCategoryColor(project.category) }}
-                                        >
+                                <div key={project.id} className="mini-projects-section-project-card" style={{ "--delay": `${index * 0.1}s` }}>
+                                    {/* Project Image */}
+                                    <div className="mini-projects-section-project-image-container">
+                                        <img src={project.images[0] || "/placeholder.svg"} alt={project.title} className="mini-projects-section-project-image" />
+                                        <div className="mini-projects-section-category-badge" style={{ backgroundColor: getCategoryColor(project.category) }}>
                                             {project.category}
                                         </div>
-                                        <div className="admin-page-project-rating-badge">
-                                            <span className="admin-page-star">⭐</span>
+                                        <div className="mini-projects-section-rating-badge">
+                                            <span className="mini-projects-section-star">⭐</span>
                                             <span>{project.rating}</span>
                                         </div>
                                     </div>
 
-                                    <div className="admin-page-project-content">
-                                        <div className="admin-page-project-header">
-                                            <h4 className="admin-page-project-title">{project.title}</h4>
+                                    {/* Project Info */}
+                                    <div className="mini-projects-section-project-info">
+                                        <div className="mini-projects-section-project-header">
+                                            <h3>{project.title}</h3>
                                             <span
-                                                className={`admin-page-project-difficulty-badge admin-page-difficulty-${project.difficulty?.toLowerCase()}`}
+                                                className={`mini-projects-section-difficulty-badge mini-projects-section-difficulty-${project.difficulty.toLowerCase()}`}
                                                 style={{
                                                     backgroundColor: `${getDifficultyColor(project.difficulty)}15`,
                                                     color: getDifficultyColor(project.difficulty),
@@ -610,25 +606,25 @@ const MiniProjectsAdmin = () => {
                                             </span>
                                         </div>
 
-                                        <p className="admin-page-project-description">{project.description}</p>
+                                        <p className="mini-projects-section-project-description">{project.description}</p>
 
-                                        <div className="admin-page-project-stats">
-                                            <div className="admin-page-project-stat">
-                                                <span className="admin-page-stat-icon">⏱️</span>
+                                        <div className="mini-projects-section-project-stats">
+                                            <div className="mini-projects-section-stat">
+                                                <span className="mini-projects-section-stat-icon">⏱️</span>
                                                 <span>{project.duration}</span>
                                             </div>
-                                            <div className="admin-page-project-stat">
-                                                <span className="admin-page-stat-icon">📦</span>
-                                                <span>{project.components?.length || 0} components</span>
+                                            <div className="mini-projects-section-stat">
+                                                <span className="mini-projects-section-stat-icon">📦</span>
+                                                <span>{project.components.length} components</span>
                                             </div>
                                         </div>
 
-                                        <div className="admin-page-project-footer">
-                                            <div className="admin-page-project-price">
-                                                <span className="admin-page-price-currency">₹</span>
-                                                <span className="admin-page-price-value">{project.price}</span>
+                                        <div className="mini-projects-section-project-footer">
+                                            <div className="mini-projects-section-project-price">
+                                                <span className="mini-projects-section-price-currency">₹</span>
+                                                <span className="mini-projects-section-price-value">{project.price}</span>
                                             </div>
-                                            <button className="admin-page-view-details-btn" onClick={() => setSelectedProject(project)}>
+                                            <button className="mini-projects-section-view-details-btn" onClick={() => setSelectedProject(project)}>
                                                 View Details
                                             </button>
                                         </div>
@@ -642,80 +638,11 @@ const MiniProjectsAdmin = () => {
 
             {/* Project Detail Modal */}
             {selectedProject && (
-                <div className="admin-page-project-modal-overlay" onClick={() => setSelectedProject(null)}>
-                    <div className="admin-page-project-modal-content" onClick={(e) => e.stopPropagation()}>
-                        <div className="admin-page-project-modal-header">
-                            <h3 className="admin-page-project-modal-title">{selectedProject.title}</h3>
-                            <button className="admin-page-project-modal-close" onClick={() => setSelectedProject(null)}>
-                                ✕
-                            </button>
-                        </div>
-                        <div className="admin-page-project-modal-body">
-                            <div className="admin-page-project-modal-images">
-                                {selectedProject.images?.map((image, index) => (
-                                    <img
-                                        key={index}
-                                        src={image || "/placeholder.svg"}
-                                        alt={`${selectedProject.title} ${index + 1}`}
-                                        className="admin-page-project-modal-image"
-                                    />
-                                ))}
-                            </div>
-                            <div className="admin-page-project-modal-details">
-                                <p>
-                                    <strong>Description:</strong> {selectedProject.fullDescription}
-                                </p>
-                                <p>
-                                    <strong>Category:</strong> {selectedProject.category}
-                                </p>
-                                <p>
-                                    <strong>Difficulty:</strong> {selectedProject.difficulty}
-                                </p>
-                                <p>
-                                    <strong>Duration:</strong> {selectedProject.duration}
-                                </p>
-                                <p>
-                                    <strong>Price:</strong> ₹{selectedProject.price}
-                                </p>
-
-                                {selectedProject.features && selectedProject.features.length > 0 && (
-                                    <div>
-                                        <strong>Features:</strong>
-                                        <ul>
-                                            {selectedProject.features.map((feature, index) => (
-                                                <li key={index}>{feature}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-
-                                {selectedProject.learningOutcomes && selectedProject.learningOutcomes.length > 0 && (
-                                    <div>
-                                        <strong>Learning Outcomes:</strong>
-                                        <ul>
-                                            {selectedProject.learningOutcomes.map((outcome, index) => (
-                                                <li key={index}>{outcome}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-
-                                {selectedProject.components && selectedProject.components.length > 0 && (
-                                    <div>
-                                        <strong>Components:</strong>
-                                        <ul>
-                                            {selectedProject.components.map((component, index) => (
-                                                <li key={index}>
-                                                    {component.name} - ₹{component.price} × {component.quantity}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <ProjectDetailModal
+                    project={selectedProject}
+                    isOpen={!!selectedProject}
+                    onClose={() => setSelectedProject(null)}
+                />
             )}
         </div>
     )

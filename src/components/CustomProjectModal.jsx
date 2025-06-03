@@ -1,9 +1,17 @@
+// CustomProjectModal.jsx
 "use client"
 
 import { useState } from "react"
+import { collection, addDoc, Timestamp } from "firebase/firestore"
+import { db } from "../firebase"
+import { useAuth } from "../contexts/AuthContext"
 import "./CustomProjectModal.css"
+import { useNavigate } from "react-router-dom"
 
 const CustomProjectModal = ({ isOpen, onClose }) => {
+    const { currentUser, userData } = useAuth()
+    const navigate = useNavigate()
+
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -22,31 +30,7 @@ const CustomProjectModal = ({ isOpen, onClose }) => {
 
     const [isSubmitted, setIsSubmitted] = useState(false)
     const [currentStep, setCurrentStep] = useState(1)
-
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        setIsSubmitted(true)
-        setTimeout(() => {
-            onClose()
-            setIsSubmitted(false)
-            setCurrentStep(1)
-            setFormData({
-                name: "",
-                email: "",
-                phone: "",
-                company: "",
-                projectTitle: "",
-                description: "",
-                requirements: "",
-                timeline: "",
-                budget: "",
-                difficulty: "",
-                category: "",
-                additionalNotes: "",
-                attachments: [],
-            })
-        }, 3000)
-    }
+    const [isSaving, setIsSaving] = useState(false)
 
     const handleInputChange = (field, value) => {
         setFormData((prev) => ({ ...prev, [field]: value }))
@@ -60,8 +44,96 @@ const CustomProjectModal = ({ isOpen, onClose }) => {
         if (currentStep > 1) setCurrentStep(currentStep - 1)
     }
 
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+
+        // If user is not logged in, redirect to login
+        if (!currentUser) {
+            navigate("/login")
+            return
+        }
+
+        setIsSaving(true)
+        try {
+            // Prepare payload
+            const payload = {
+                customerUid: currentUser.uid,
+                customerName: formData.name,
+                customerEmail: formData.email,
+                customerPhone: formData.phone || "",
+                company: formData.company || "",
+                projectTitle: formData.projectTitle,
+                description: formData.description,
+                technicalRequirements: formData.requirements || "",
+                timeline: formData.timeline || "",
+                budget: formData.budget || "",
+                difficulty: formData.difficulty || "",
+                category: formData.category || "",
+                additionalInfo: formData.additionalNotes || "",
+                status: "pending",
+                createdAt: Timestamp.now(),
+            }
+
+            // Write to Firestore collection "custom-project-requests"
+            await addDoc(collection(db, "custom-project-requests"), payload)
+
+            setIsSubmitted(true)
+            setTimeout(() => {
+                onClose()
+                setIsSubmitted(false)
+                setCurrentStep(1)
+                setFormData({
+                    name: "",
+                    email: "",
+                    phone: "",
+                    company: "",
+                    projectTitle: "",
+                    description: "",
+                    requirements: "",
+                    timeline: "",
+                    budget: "",
+                    difficulty: "",
+                    category: "",
+                    additionalNotes: "",
+                    attachments: [],
+                })
+            }, 3000)
+        } catch (error) {
+            console.error("Error submitting custom project request:", error)
+            alert("Failed to submit request. Please try again.")
+        } finally {
+            setIsSaving(false)
+        }
+    }
+
     if (!isOpen) return null
 
+    // If user not logged in, show prompt
+    if (!currentUser) {
+        return (
+            <div className="modal-overlay" onClick={onClose}>
+                <div className="modal-content custom-project-modal" onClick={(e) => e.stopPropagation()}>
+                    <div className="modal-header">
+                        <h2 className="modal-title">Please Log In</h2>
+                        <button className="modal-close" onClick={onClose}>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <div className="modal-body">
+                        <p>You must be logged in to submit a custom project request.</p>
+                        <button className="btn btn-primary" onClick={() => navigate("/login")}>
+                            Go to Login
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    // After successful submission, show success screen
     if (isSubmitted) {
         return (
             <div className="modal-overlay" onClick={onClose}>
@@ -419,9 +491,9 @@ const CustomProjectModal = ({ isOpen, onClose }) => {
                                     </svg>
                                 </button>
                             ) : (
-                                <button type="submit" className="btn btn-primary">
+                                <button type="submit" className="btn btn-primary" disabled={isSaving}>
                                     <span className="btn-icon">📤</span>
-                                    Submit Request
+                                    {isSaving ? "Submitting..." : "Submit Request"}
                                 </button>
                             )}
                         </div>

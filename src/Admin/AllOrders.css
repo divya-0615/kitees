@@ -1,5 +1,4 @@
 .admin-page-all-orders {
-  padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -9,10 +8,10 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 32px;
-  padding: 24px;
+  padding: 28px;
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
   border: 1px solid #f1f5f9;
 }
 
@@ -21,7 +20,7 @@
 }
 
 .admin-page-orders-title {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
   color: #1e293b;
   margin: 0 0 8px 0;
@@ -31,6 +30,7 @@
   font-size: 16px;
   color: #64748b;
   margin: 0;
+  font-weight: 500;
 }
 
 .admin-page-orders-stats {
@@ -46,8 +46,8 @@
 }
 
 .admin-page-stat-number {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 28px;
+  font-weight: 800;
   color: #1e293b;
   line-height: 1;
 }
@@ -56,17 +56,18 @@
   font-size: 14px;
   color: #64748b;
   margin-top: 4px;
+  font-weight: 600;
 }
 
 .admin-page-orders-controls {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   margin-bottom: 24px;
-  padding: 20px;
+  padding: 24px;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
   border: 1px solid #f1f5f9;
 }
 
@@ -90,12 +91,13 @@
 
 .admin-page-search-input {
   width: 100%;
-  padding: 12px 16px 12px 48px;
+  padding: 14px 16px 14px 48px;
   border: 2px solid #e2e8f0;
   border-radius: 12px;
   font-size: 14px;
   background: #f8fafc;
   transition: all 0.2s ease;
+  font-weight: 500;
 }
 
 .admin-page-search-input:focus {
@@ -107,7 +109,7 @@
 
 .admin-page-filters-section {
   display: flex;
-  gap: 16px;
+  gap: 20px;
   align-items: center;
   flex-wrap: wrap;
 }
@@ -115,25 +117,26 @@
 .admin-page-filter-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .admin-page-filter-group label {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: #374151;
   white-space: nowrap;
 }
 
 .admin-page-filter-select {
-  padding: 8px 12px;
+  padding: 10px 16px;
   border: 2px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 14px;
   background: white;
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 140px;
+  font-weight: 500;
 }
 
 .admin-page-filter-select:focus {
@@ -143,21 +146,22 @@
 }
 
 .admin-page-refresh-btn {
-  padding: 8px 16px;
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
+  padding: 10px 20px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 10px;
   font-size: 14px;
-  font-weight: 500;
-  color: #475569;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
 }
 
 .admin-page-refresh-btn:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .admin-page-loading {
@@ -192,8 +196,8 @@
   text-align: center;
   padding: 64px 32px;
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
   border: 1px solid #f1f5f9;
 }
 
@@ -217,8 +221,8 @@
 
 .admin-page-orders-table-container {
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
   border: 1px solid #f1f5f9;
   overflow: hidden;
 }
@@ -233,7 +237,7 @@
 }
 
 .admin-page-header-row {
-  font-weight: 600;
+  font-weight: 700;
   color: #374151;
   font-size: 14px;
 }
@@ -242,7 +246,7 @@
   display: grid;
   grid-template-columns: 120px 200px 140px 80px 100px 120px 100px;
   gap: 16px;
-  padding: 16px 20px;
+  padding: 20px;
   align-items: center;
   border-bottom: 1px solid #f1f5f9;
   transition: all 0.2s ease;
@@ -264,6 +268,8 @@
 
 .admin-page-order-row:hover {
   background: #f8fafc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .admin-page-table-cell {
@@ -273,7 +279,7 @@
 }
 
 .admin-page-order-id {
-  font-weight: 600;
+  font-weight: 700;
   color: #1e293b;
   font-family: "Courier New", monospace;
 }
@@ -281,11 +287,11 @@
 .admin-page-customer-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .admin-page-customer-name {
-  font-weight: 500;
+  font-weight: 600;
   color: #1e293b;
 }
 
@@ -297,11 +303,11 @@
 .admin-page-order-datetime {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .admin-page-order-date {
-  font-weight: 500;
+  font-weight: 600;
   color: #1e293b;
 }
 
@@ -311,12 +317,12 @@
 }
 
 .admin-page-items-count {
-  font-weight: 500;
+  font-weight: 600;
   color: #64748b;
 }
 
 .admin-page-order-amount {
-  font-weight: 600;
+  font-weight: 700;
   color: #1e293b;
   font-size: 15px;
 }
@@ -325,10 +331,10 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
-  border-radius: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   border: 1px solid;
   text-transform: capitalize;
   white-space: nowrap;
@@ -342,13 +348,13 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
+  padding: 10px 16px;
   background: #3b82f6;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -364,13 +370,13 @@
   .admin-page-table-row {
     grid-template-columns: 100px 180px 120px 70px 90px 110px 90px;
     gap: 12px;
-    padding: 14px 16px;
+    padding: 16px;
   }
 }
 
 @media (max-width: 768px) {
   .admin-page-all-orders {
-    padding: 16px;
+    padding: 0;
   }
 
   .admin-page-orders-header {

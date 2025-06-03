@@ -268,7 +268,7 @@ const OrderDetailModal = ({ order, isOpen, onClose }) => {
                     </div>
                 </div>
 
-                <div className="admin-page-modal-footer">
+                <div className="admin-page-order-modal-footer">
                     <button className="admin-page-btn admin-page-btn-secondary" onClick={onClose}>
                         Close
                     </button>

@@ -4,10 +4,10 @@ import { useState, useEffect } from "react"
 import { collection, addDoc, getDocs, query, orderBy } from "firebase/firestore"
 import { db } from "../firebase"
 import "./AvailableKits.css"
-
+import KitDetailModal from "../components/KitDetailModel"
 const AvailableKitsAdmin = () => {
     const [showForm, setShowForm] = useState(false)
-    const [showPreview, setShowPreview] = useState(false)
+    const [showPreview, setShowPreview] = useState(true)
     const [kits, setKits] = useState([])
     const [loading, setLoading] = useState(false)
     const [searchTerm, setSearchTerm] = useState("")
@@ -171,6 +171,8 @@ const AvailableKitsAdmin = () => {
             kit.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             kit.description?.toLowerCase().includes(searchTerm.toLowerCase()),
     )
+
+    const [selectedKit, setSelectedKit] = useState(null)
 
     return (
         <div className="admin-page-available-kits">
@@ -454,52 +456,82 @@ const AvailableKitsAdmin = () => {
                     ) : (
                         <div className="admin-page-kits-grid">
                             {filteredKits.map((kit, index) => (
-                                <div key={kit.id} className="admin-page-kit-card" style={{ "--delay": `${index * 0.1}s` }}>
-                                    <div className="admin-page-kit-image-container">
-                                        <img
-                                            src={kit.image || "/placeholder.svg?height=200&width=300"}
-                                            alt={kit.title}
-                                            className="admin-page-kit-image"
-                                        />
-                                        <div className="admin-page-kit-category-badge">{kit.category}</div>
-                                        <div
-                                            className="admin-page-kit-difficulty-badge"
-                                            style={{ backgroundColor: getDifficultyColor(kit.difficulty) }}
-                                        >
-                                            {kit.difficulty}
-                                        </div>
-                                        {kit.originalPrice && (
-                                            <div className="admin-page-kit-discount-badge">
-                                                {Math.round(((kit.originalPrice - kit.price) / kit.originalPrice) * 100)}% OFF
-                                            </div>
-                                        )}
-                                    </div>
+                                <div key={kit.id} className="kit-card-wrapper" style={{ "--delay": `${index * 0.1}s` }}>
+                                    <div className="kit-card">
+                                        <div className="kit-card-header">
+                                            <div className="kit-image-container">
+                                                <img src={kit.image || "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg"} alt={kit.title} className="kit-image" />
 
-                                    <div className="admin-page-kit-content">
-                                        <h4 className="admin-page-kit-title">{kit.title}</h4>
-                                        <p className="admin-page-kit-description">{kit.description}</p>
+                                                {/* Overlays */}
+                                                <div className="kit-image-overlay"></div>
 
-                                        <div className="admin-page-kit-stats">
-                                            <div className="admin-page-kit-rating">
-                                                <span className="admin-page-star">⭐</span>
-                                                <span>{kit.rating}</span>
-                                                <span className="admin-page-reviews">({kit.reviews})</span>
-                                            </div>
-                                            <div className="admin-page-kit-time">
-                                                <span className="admin-page-clock">🕐</span>
-                                                <span>{kit.estimatedTime}</span>
-                                            </div>
-                                        </div>
+                                                {/* Badges */}
+                                                <div className="kit-category-badge">{kit.category}</div>
 
-                                        <div className="admin-page-kit-pricing">
-                                            <div className="admin-page-kit-price">₹{kit.price}</div>
-                                            {kit.originalPrice && <div className="admin-page-kit-original-price">₹{kit.originalPrice}</div>}
+                                                <div className="kit-difficulty-badge" style={{ backgroundColor: getDifficultyColor(kit.difficulty) }}>
+                                                    {kit.difficulty}
+                                                </div>
+
+                                                {/* Discount Badge */}
+                                                {kit.originalPrice && (
+                                                    <div className="kit-discount-badge">
+                                                        {Math.round(((kit.originalPrice - kit.price) / kit.originalPrice) * 100)}% OFF
+                                                    </div>
+                                                )}
+
+                                                {/* Quick Stats */}
+                                                <div className="kit-quick-stats">
+                                                    <div className="kit-rating-badge">
+                                                        <span className="star">⭐</span>
+                                                        {kit.rating}
+                                                    </div>
+                                                    <div className="kit-reviews-badge">
+                                                        <span className="users-icon">👥</span>
+                                                        {kit.reviews}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
 
-                                        <div className="admin-page-kit-components-count">📦 {kit.components?.length || 0} components</div>
+                                        <div className="kit-card-content">
+                                            <div className="kit-content-inner">
+                                                <div className="kit-title-section">
+                                                    <h3 className="kit-title">{kit.title}</h3>
+                                                    <p className="kit-description">{kit.description}</p>
+                                                </div>
+
+                                                <div className="kit-stats">
+                                                    <div className="kit-rating">
+                                                        <span className="star">⭐</span>
+                                                        <span className="rating-value">{kit.rating}</span>
+                                                        <span className="rating-count">({kit.reviews})</span>
+                                                    </div>
+                                                    <div className="kit-time">
+                                                        <span className="clock-icon">🕐</span>
+                                                        {kit.estimatedTime}
+                                                    </div>
+                                                </div>
+
+                                                <div className="kit-pricing">
+                                                    <div className="kit-price-section">
+                                                        <div className="kit-price">₹{kit.price}</div>
+                                                        {kit.originalPrice && <div className="kit-original-price">₹{kit.originalPrice}</div>}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="kit-card-footer">
+                                            <button className="kit-view-btn" onClick={() => setSelectedKit(kit)}>
+                                                <span className="btn-icon">👁️</span>
+                                                View Details
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
+
+                            {selectedKit && <KitDetailModal kit={selectedKit} isOpen={!!selectedKit} onClose={() => setSelectedKit(null)} />}
                         </div>
                     )}
                 </div>

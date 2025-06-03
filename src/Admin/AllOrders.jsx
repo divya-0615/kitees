@@ -186,89 +186,120 @@ const AllOrders = () => {
                 </div>
             </div>
 
-            {filteredOrders.length === 0 ? (
-                <div className="admin-page-no-orders">
-                    <div className="admin-page-no-orders-icon">📦</div>
-                    <h3>No Orders Found</h3>
-                    <p>
-                        {orders.length === 0 ? "No orders have been placed yet." : "No orders match your current search criteria."}
-                    </p>
+            <div className="admin-page-users-table-container">
+                <div className="admin-page-table-wrapper">
+                    <table className="admin-page-users-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Date &amp; Time</th>
+                                <th>Items</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredOrders.length > 0 ? (
+                                filteredOrders.map((order, idx) => (
+                                    <tr
+                                        key={order.id}
+                                        className="admin-page-user-row"
+                                        style={{ "--delay": `${idx * 0.05}s` }}
+                                    >
+                                        {/* Order ID as “user” cell */}
+                                        <td className="admin-page-user-info">
+                                            <div className="admin-page-user-avatar">📦</div>
+                                            <div className="admin-page-user-details">
+                                                <div className="admin-page-user-name">#{order.orderId}</div>
+                                            </div>
+                                        </td>
+
+                                        {/* Customer as “contact” cell */}
+                                        <td>
+                                            <div>
+                                                <div className="admin-page-email">
+                                                    {order.customerDetails?.name || "N/A"}
+                                                </div>
+                                                <div className="admin-page-phone">
+                                                    {order.customerDetails?.email || "N/A"}
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        {/* Date & Time as “joined” cell */}
+                                        <td className="admin-page-join-date">
+                                            <div>{order.orderDate}</div>
+                                            <div>{order.orderTime}</div>
+                                        </td>
+
+                                        {/* Items */}
+                                        <td>
+                                            <div className="admin-page-email">
+                                                {order.totalQuantity || order.items?.length || 0} items
+                                            </div>
+                                        </td>
+
+                                        {/* Amount */}
+                                        <td>
+                                            <div className="admin-page-email">
+                                                ₹{order.totalAmount?.toFixed(2) || "0.00"}
+                                            </div>
+                                        </td>
+
+                                        {/* Status */}
+                                        <td>
+                                            <div
+                                                className="admin-page-status-badge"
+                                                style={{
+                                                    backgroundColor: `${getStatusColor(order.status)}20`,
+                                                    color: getStatusColor(order.status),
+                                                    borderColor: getStatusColor(order.status),
+                                                }}
+                                            >
+                                                <span className="admin-page-status-icon">
+                                                    {getStatusIcon(order.status)}
+                                                </span>
+                                                <span className="admin-page-status-text">
+                                                    {order.status || "Pending"}
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        {/* Actions */}
+                                        <td className="admin-page-user-actions" style={{ justifyContent: "left" }}>
+                                            <button
+                                                className="admin-page-action-btn view"
+                                                onClick={() => setSelectedOrder(order)}
+                                                title="View details"
+                                            >
+                                                👁️
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="7" className="admin-page-no-users">
+                                        <div className="admin-page-empty-state">
+                                            <div className="admin-page-user-avatar">📦</div>
+                                            <h3>No Orders Found</h3>
+                                            <p>
+                                                {orders.length === 0
+                                                    ? "No orders have been placed yet."
+                                                    : "No orders match your current search criteria."}
+                                            </p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
-            ) : (
-                <div className="admin-page-orders-table-container">
-                    <div className="admin-page-orders-table">
-                        <div className="admin-page-table-header">
-                            <div className="admin-page-table-row admin-page-header-row">
-                                <div className="admin-page-table-cell">Order ID</div>
-                                <div className="admin-page-table-cell">Customer</div>
-                                <div className="admin-page-table-cell">Date & Time</div>
-                                <div className="admin-page-table-cell">Items</div>
-                                <div className="admin-page-table-cell">Amount</div>
-                                <div className="admin-page-table-cell">Status</div>
-                                <div className="admin-page-table-cell">Actions</div>
-                            </div>
-                        </div>
+            </div>
 
-                        <div className="admin-page-table-body">
-                            {filteredOrders.map((order, index) => (
-                                <div
-                                    key={order.id}
-                                    className="admin-page-table-row admin-page-order-row"
-                                    style={{ "--delay": `${index * 0.05}s` }}
-                                >
-                                    <div className="admin-page-table-cell">
-                                        <div className="admin-page-order-id">#{order.orderId}</div>
-                                    </div>
 
-                                    <div className="admin-page-table-cell">
-                                        <div className="admin-page-customer-info">
-                                            <div className="admin-page-customer-name">{order.customerDetails?.name || "N/A"}</div>
-                                            <div className="admin-page-customer-email">{order.customerDetails?.email || "N/A"}</div>
-                                        </div>
-                                    </div>
-
-                                    <div className="admin-page-table-cell">
-                                        <div className="admin-page-order-datetime">
-                                            <div className="admin-page-order-date">{order.orderDate}</div>
-                                            <div className="admin-page-order-time">{order.orderTime}</div>
-                                        </div>
-                                    </div>
-
-                                    <div className="admin-page-table-cell">
-                                        <div className="admin-page-items-count">
-                                            {order.totalQuantity || order.items?.length || 0} items
-                                        </div>
-                                    </div>
-
-                                    <div className="admin-page-table-cell">
-                                        <div className="admin-page-order-amount">₹{order.totalAmount?.toFixed(2) || "0.00"}</div>
-                                    </div>
-
-                                    <div className="admin-page-table-cell">
-                                        <div
-                                            className="admin-page-status-badge"
-                                            style={{
-                                                backgroundColor: `${getStatusColor(order.status)}20`,
-                                                color: getStatusColor(order.status),
-                                                borderColor: getStatusColor(order.status),
-                                            }}
-                                        >
-                                            <span className="admin-page-status-icon">{getStatusIcon(order.status)}</span>
-                                            <span className="admin-page-status-text">{order.status || "Pending"}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="admin-page-table-cell">
-                                        <button className="admin-page-view-btn" onClick={() => setSelectedOrder(order)}>
-                                            👁️ View
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {selectedOrder && (
                 <OrderDetailModal order={selectedOrder} isOpen={!!selectedOrder} onClose={() => setSelectedOrder(null)} />

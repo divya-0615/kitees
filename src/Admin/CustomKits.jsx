@@ -7,7 +7,7 @@ import "./CustomKits.css"
 
 const CustomKitsAdmin = () => {
     const [showForm, setShowForm] = useState(false)
-    const [showPreview, setShowPreview] = useState(false)
+    const [showPreview, setShowPreview] = useState(true)
     const [components, setComponents] = useState([])
     const [loading, setLoading] = useState(false)
     const [searchTerm, setSearchTerm] = useState("")
@@ -116,6 +116,19 @@ const CustomKitsAdmin = () => {
             component.description?.toLowerCase().includes(searchTerm.toLowerCase()),
     )
 
+    const getCategoryColor = (category) => {
+        const colors = {
+            Microcontroller: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
+            Prototyping: "linear-gradient(135deg, #10b981, #059669)",
+            Display: "linear-gradient(135deg, #f59e0b, #d97706)",
+            Passive: "linear-gradient(135deg, #8b5cf6, #7c3aed)",
+            Sensor: "linear-gradient(135deg, #ef4444, #dc2626)",
+            Motor: "linear-gradient(135deg, #6366f1, #4f46e5)",
+            Connectivity: "linear-gradient(135deg, #ec4899, #db2777)",
+        }
+        return colors[category] || "linear-gradient(135deg, #6b7280, #4b5563)"
+    }
+
     return (
         <div className="admin-page-custom-kits">
             <div className="admin-page-custom-kits-header">
@@ -136,7 +149,7 @@ const CustomKitsAdmin = () => {
             </div>
 
             {showForm && (
-                <div className="admin-page-component-form-container">
+                <div className="admin-page-kit-form-container">
                     <div className="admin-page-form-header">
                         <h3 className="admin-page-form-title">
                             <span className="admin-page-form-icon">⚙️</span>
@@ -144,14 +157,15 @@ const CustomKitsAdmin = () => {
                         </h3>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="admin-page-component-form">
+                    <form onSubmit={handleSubmit} className="admin-page-kit-form">
+                        {/* Main fields in a grid */}
                         <div className="admin-page-form-grid">
                             <div className="admin-page-form-group">
                                 <label>Component Title *</label>
                                 <input
                                     type="text"
                                     value={formData.title}
-                                    onChange={(e) => handleInputChange("title", e.target.value)}
+                                    onChange={e => handleInputChange("title", e.target.value)}
                                     required
                                     placeholder="Arduino Uno R3"
                                     className="admin-page-form-input"
@@ -162,7 +176,7 @@ const CustomKitsAdmin = () => {
                                 <label>Category *</label>
                                 <select
                                     value={formData.category}
-                                    onChange={(e) => handleInputChange("category", e.target.value)}
+                                    onChange={e => handleInputChange("category", e.target.value)}
                                     required
                                     className="admin-page-form-input"
                                 >
@@ -186,7 +200,7 @@ const CustomKitsAdmin = () => {
                                     type="number"
                                     step="0.01"
                                     value={formData.price}
-                                    onChange={(e) => handleInputChange("price", e.target.value)}
+                                    onChange={e => handleInputChange("price", e.target.value)}
                                     required
                                     placeholder="25.00"
                                     className="admin-page-form-input"
@@ -201,7 +215,7 @@ const CustomKitsAdmin = () => {
                                     min="1"
                                     max="5"
                                     value={formData.rating}
-                                    onChange={(e) => handleInputChange("rating", e.target.value)}
+                                    onChange={e => handleInputChange("rating", e.target.value)}
                                     placeholder="4.5"
                                     className="admin-page-form-input"
                                 />
@@ -211,7 +225,9 @@ const CustomKitsAdmin = () => {
                                 <label>Stock Status</label>
                                 <select
                                     value={formData.inStock}
-                                    onChange={(e) => handleInputChange("inStock", e.target.value === "true")}
+                                    onChange={e =>
+                                        handleInputChange("inStock", e.target.value === "true")
+                                    }
                                     className="admin-page-form-input"
                                 >
                                     <option value="true">In Stock</option>
@@ -220,23 +236,25 @@ const CustomKitsAdmin = () => {
                             </div>
                         </div>
 
+                        {/* Image URL */}
                         <div className="admin-page-form-group">
                             <label>Image URL *</label>
                             <input
                                 type="url"
                                 value={formData.image}
-                                onChange={(e) => handleInputChange("image", e.target.value)}
+                                onChange={e => handleInputChange("image", e.target.value)}
                                 required
                                 placeholder="https://example.com/component-image.jpg"
                                 className="admin-page-form-input"
                             />
                         </div>
 
+                        {/* Short Description */}
                         <div className="admin-page-form-group">
                             <label>Description *</label>
                             <textarea
                                 value={formData.description}
-                                onChange={(e) => handleInputChange("description", e.target.value)}
+                                onChange={e => handleInputChange("description", e.target.value)}
                                 required
                                 placeholder="The heart of your projects. A microcontroller board based on the ATmega328P..."
                                 className="admin-page-form-textarea"
@@ -244,31 +262,43 @@ const CustomKitsAdmin = () => {
                             />
                         </div>
 
-                        {/* Specifications Section */}
-                        <div className="admin-page-specifications-section">
+                        {/* Specifications Section (reuses Kit’s components-section styling) */}
+                        <div className="admin-page-components-section">
                             <h4 className="admin-page-section-title">
                                 <span className="admin-page-section-icon">📋</span>
                                 Component Specifications
                             </h4>
 
-                            <div className="admin-page-specification-form">
-                                <input
-                                    type="text"
-                                    placeholder="Add a specification (e.g., ATmega328P Processor)"
-                                    value={specificationInput}
-                                    onChange={(e) => setSpecificationInput(e.target.value)}
-                                    className="admin-page-form-input"
-                                />
-                                <button type="button" onClick={addSpecification} className="admin-page-add-spec-btn">
-                                    ➕ Add Spec
-                                </button>
+                            <div className="admin-page-component-form">
+                                <div className="admin-page-component-inputs">
+                                    <input
+                                        type="text"
+                                        placeholder="Add a specification (e.g., ATmega328P Processor)"
+                                        value={specificationInput}
+                                        onChange={e => setSpecificationInput(e.target.value)}
+                                        className="admin-page-form-input"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={addSpecification}
+                                        className="admin-page-add-component-btn"
+                                    >
+                                        ➕ Add Spec
+                                    </button>
+                                </div>
                             </div>
 
-                            <div className="admin-page-specifications-list">
-                                {formData.specifications.map((spec, index) => (
-                                    <div key={index} className="admin-page-specification-item">
-                                        <span className="admin-page-specification-text">{spec}</span>
-                                        <button type="button" onClick={() => removeSpecification(index)} className="admin-page-remove-btn">
+                            <div className="admin-page-components-list">
+                                {formData.specifications.map((spec, idx) => (
+                                    <div key={idx} className="admin-page-component-item">
+                                        <div className="admin-page-component-info">
+                                            <span className="admin-page-component-name">{spec}</span>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => removeSpecification(idx)}
+                                            className="admin-page-remove-btn"
+                                        >
                                             ❌
                                         </button>
                                     </div>
@@ -276,6 +306,7 @@ const CustomKitsAdmin = () => {
                             </div>
                         </div>
 
+                        {/* Form Actions */}
                         <div className="admin-page-form-actions">
                             <button
                                 type="button"
@@ -284,7 +315,11 @@ const CustomKitsAdmin = () => {
                             >
                                 Cancel
                             </button>
-                            <button type="submit" disabled={loading} className="admin-page-btn admin-page-btn-primary">
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="admin-page-btn admin-page-btn-primary"
+                            >
                                 {loading ? "Adding Component..." : "Add Component"}
                             </button>
                         </div>
@@ -329,45 +364,65 @@ const CustomKitsAdmin = () => {
                     ) : (
                         <div className="admin-page-components-grid">
                             {filteredComponents.map((component, index) => (
-                                <div key={component.id} className="admin-page-component-card" style={{ "--delay": `${index * 0.1}s` }}>
-                                    <div className="admin-page-component-image-container">
-                                        <img
-                                            src={component.image || "/placeholder.svg?height=150&width=200"}
-                                            alt={component.title}
-                                            className="admin-page-component-image"
-                                        />
-                                        <div className="admin-page-component-category-badge">{component.category}</div>
-                                        <div className={`admin-page-stock-badge ${component.inStock ? "in-stock" : "out-of-stock"}`}>
-                                            {component.inStock ? "✅ In Stock" : "❌ Out of Stock"}
-                                        </div>
-                                    </div>
+                                <div className="component-card-wrapper" style={{ "--delay": `${index * 0.1}s` }}>
+                                    <div
+                                        className={`component-card `}
+                                        data-component-id={component.id}
+                                    >
+                                        <div className="card-header">
+                                            <div className="image-container">
+                                                <img src={component.image || "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg"} alt={component.title} className="component-image" />
 
-                                    <div className="admin-page-component-content">
-                                        <h4 className="admin-page-component-title">{component.title}</h4>
-                                        <p className="admin-page-component-description">{component.description}</p>
+                                                {/* Gradient overlay */}
+                                                <div className="image-overlay"></div>
 
-                                        <div className="admin-page-component-rating">
-                                            <span className="admin-page-star">⭐</span>
-                                            <span>{component.rating}</span>
-                                        </div>
+                                                {/* Category badge */}
+                                                <div className="category-badge" style={{ background: getCategoryColor(component.category) }}>
+                                                    {component.category}
+                                                </div>
 
-                                        <div className="admin-page-component-price">₹{component.price}</div>
+                                                {/* Stock status */}
+                                                <div className="stock-badge">In Stock</div>
 
-                                        {component.specifications && component.specifications.length > 0 && (
-                                            <div className="admin-page-component-specs">
-                                                <strong>Specifications:</strong>
-                                                <ul className="admin-page-specs-list">
-                                                    {component.specifications.slice(0, 3).map((spec, idx) => (
-                                                        <li key={idx} className="admin-page-spec-item">
-                                                            {spec}
-                                                        </li>
-                                                    ))}
-                                                    {component.specifications.length > 3 && (
-                                                        <li className="admin-page-spec-more">+{component.specifications.length - 3} more</li>
-                                                    )}
-                                                </ul>
+                                                {/* Rating */}
+                                                <div className="rating-badge">
+                                                    <span className="star">⭐</span>
+                                                    {component.rating}
+                                                </div>
                                             </div>
-                                        )}
+                                        </div>
+
+                                        <div className="card-content">
+                                            <div className="content-inner">
+                                                <div className="title-section">
+                                                    <h3 className="component-title">{component.title}</h3>
+                                                    <p className="component-description">{component.description}</p>
+                                                </div>
+
+                                                {/* Specifications */}
+                                                <div className="specifications">
+                                                    <div className="spec-header">
+                                                        <span className="info-icon">ℹ️</span>
+                                                        Key Features:
+                                                    </div>
+                                                    <div className="spec-list">
+                                                        {component.specifications.slice(0, 2).map((spec, i) => (
+                                                            <div key={i} className="spec-item">
+                                                                • {spec}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                <div className="price-rating">
+                                                    <div className="price">₹{component.price}</div>
+                                                    <div className="rating">
+                                                        <span className="star">⭐</span>
+                                                        {component.rating}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             ))}

@@ -13,6 +13,8 @@ const CustomProjectRequests = () => {
   const [statusFilter, setStatusFilter] = useState("all")
   const [sortBy, setSortBy] = useState("newest")
   const [updating, setUpdating] = useState(false)
+  const [activeTab, setActiveTab] = useState("all") // "all" or "accepted"
+  const [viewMode, setViewMode] = useState("card") // "card" or "table"
 
   useEffect(() => {
     fetchRequests()
@@ -57,10 +59,7 @@ const CustomProjectRequests = () => {
         updatedAt: new Date(),
       })
 
-      // Update local state
-      setRequests((prev) =>
-        prev.map((req) => (req.id === requestId ? { ...req, status: newStatus } : req))
-      )
+      setRequests((prev) => prev.map((req) => (req.id === requestId ? { ...req, status: newStatus } : req)))
 
       alert("Request status updated successfully!")
     } catch (error) {
@@ -88,21 +87,6 @@ const CustomProjectRequests = () => {
     }
   }
 
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case "pending":
-        return "#f59e0b"
-      case "in-progress":
-        return "#3b82f6"
-      case "completed":
-        return "#10b981"
-      case "rejected":
-        return "#ef4444"
-      default:
-        return "#6b7280"
-    }
-  }
-
   const getStatusIcon = (status) => {
     switch (status?.toLowerCase()) {
       case "pending":
@@ -118,429 +102,476 @@ const CustomProjectRequests = () => {
     }
   }
 
-  const getPriorityColor = (priority) => {
+  const getPriorityIcon = (priority) => {
     switch (priority?.toLowerCase()) {
       case "high":
-        return "#ef4444"
+        return "🔴"
       case "medium":
-        return "#f59e0b"
+        return "🟡"
       case "low":
-        return "#10b981"
+        return "🟢"
       default:
-        return "#6b7280"
+        return "⚪"
     }
   }
 
-  const filteredRequests = requests
-    .filter((request) => {
-      const matchesSearch =
-        request.projectTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        request.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        request.customerEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        request.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  const getFilteredRequests = () => {
+    let filtered = requests
 
-      const matchesStatus =
-        statusFilter === "all" || (request.status && request.status.toLowerCase() === statusFilter.toLowerCase())
+    // Filter by tab
+    if (activeTab === "accepted") {
+      filtered = filtered.filter((req) => req.status === "completed" || req.status === "in-progress")
+    }
 
-      return matchesSearch && matchesStatus
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "newest":
-          return new Date(b.createdAt) - new Date(a.createdAt)
-        case "oldest":
-          return new Date(a.createdAt) - new Date(b.createdAt)
-        case "budget-high":
-          return (b.budget || 0) - (a.budget || 0)
-        case "budget-low":
-          return (a.budget || 0) - (b.budget || 0)
-        default:
-          return 0
-      }
-    })
+    // Filter by search and status
+    filtered = filtered
+      .filter((request) => {
+        const matchesSearch =
+          request.projectTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          request.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          request.customerEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          request.description?.toLowerCase().includes(searchTerm.toLowerCase())
+
+        const matchesStatus =
+          statusFilter === "all" || (request.status && request.status.toLowerCase() === statusFilter.toLowerCase())
+
+        return matchesSearch && matchesStatus
+      })
+      .sort((a, b) => {
+        switch (sortBy) {
+          case "newest":
+            return new Date(b.createdAt) - new Date(a.createdAt)
+          case "oldest":
+            return new Date(a.createdAt) - new Date(b.createdAt)
+          case "budget-high":
+            return (b.budget || 0) - (a.budget || 0)
+          case "budget-low":
+            return (a.budget || 0) - (b.budget || 0)
+          default:
+            return 0
+        }
+      })
+
+    return filtered
+  }
+
+  const filteredRequests = getFilteredRequests()
+  const acceptedCount = requests.filter((req) => req.status === "completed" || req.status === "in-progress").length
 
   if (loading) {
     return (
-      <div className="admin-page-loading">
-        <div className="admin-page-loading-spinner"></div>
-        <p>Loading custom project requests...</p>
+      <div className="admin-project-request-loading-container">
+        <div className="admin-project-request-loading-spinner"></div>
+        <p className="admin-project-request-loading-text">Loading custom project requests...</p>
       </div>
     )
   }
 
   return (
-    <div className="admin-page-custom-requests">
-      <div className="admin-page-requests-header">
-        <div className="admin-page-header-info">
-          <h2 className="admin-page-requests-title">Custom Project Requests</h2>
-          <p className="admin-page-requests-subtitle">Manage and respond to custom electronics project requests</p>
-        </div>
-        <div className="admin-page-requests-stats">
-          <div className="admin-page-stat-item">
-            <span className="admin-page-stat-number">{requests.length}</span>
-            <span className="admin-page-stat-label">Total Requests</span>
-          </div>
-          <div className="admin-page-stat-item">
-            <span className="admin-page-stat-number">
-              {requests.filter((req) => req.status === "pending").length}
-            </span>
-            <span className="admin-page-stat-label">Pending</span>
-          </div>
-          <div className="admin-page-stat-item">
-            <span className="admin-page-stat-number">
-              {requests.filter((req) => req.status === "completed").length}
-            </span>
-            <span className="admin-page-stat-label">Completed</span>
-          </div>
-        </div>
-      </div>
+    <div className="admin-project-request-project-requests-container">
+      <div className="admin-project-request-main-content">
+        {/* Header Section */}
+        <div className="admin-project-request-header-section">
+          <div className="admin-project-request-header-content">
+            <div className="admin-project-request-header-info">
+              <h1 className="admin-project-request-main-title">Custom Project Requests</h1>
+              <p className="admin-project-request-main-subtitle">Manage and respond to custom electronics project requests</p>
+            </div>
 
-      <div className="admin-page-requests-controls">
-        <div className="admin-page-search-section">
-          <div className="admin-page-search-box">
-            <span className="admin-page-search-icon">🔍</span>
-            <input
-              type="text"
-              placeholder="Search by project title, customer name, email, or description..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="admin-page-search-input"
-            />
+            <div className="admin-project-request-stats-container">
+              <div className="admin-project-request-stat-card">
+                <div className="admin-project-request-stat-number">{requests.length}</div>
+                <div className="admin-project-request-stat-label">Total Requests</div>
+              </div>
+              <div className="admin-project-request-stat-card">
+                <div className="admin-project-request-stat-number">{requests.filter((req) => req.status === "pending").length}</div>
+                <div className="admin-project-request-stat-label">Pending</div>
+              </div>
+              <div className="admin-project-request-stat-card">
+                <div className="admin-project-request-stat-number">{acceptedCount}</div>
+                <div className="admin-project-request-stat-label">Accepted</div>
+              </div>
+              <div className="admin-project-request-stat-card">
+                <div className="admin-project-request-stat-number">{requests.filter((req) => req.status === "completed").length}</div>
+                <div className="admin-project-request-stat-label">Completed</div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="admin-page-filters-section">
-          <div className="admin-page-filter-group">
-            <label>Status:</label>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="admin-page-filter-select"
+        {/* Tabs Section */}
+        <div className="admin-project-request-tabs-section">
+          <div className="admin-project-request-tabs-container">
+            <button className={`admin-project-request-tab-button ${activeTab === "all" ? "active" : ""}`} onClick={() => setActiveTab("all")}>
+              <span className="admin-project-request-tab-icon">📋</span>
+              All Projects
+              <span className="admin-project-request-tab-count">{requests.length}</span>
+            </button>
+            <button
+              className={`admin-project-request-tab-button ${activeTab === "accepted" ? "active" : ""}`}
+              onClick={() => setActiveTab("accepted")}
             >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="in-progress">In Progress</option>
-              <option value="completed">Completed</option>
-              <option value="rejected">Rejected</option>
-            </select>
+              <span className="admin-project-request-tab-icon">✅</span>
+              Accepted Projects
+              <span className="admin-project-request-tab-count">{acceptedCount}</span>
+            </button>
           </div>
 
-          <div className="admin-page-filter-group">
-            <label>Sort by:</label>
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="admin-page-filter-select">
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="budget-high">Budget: High to Low</option>
-              <option value="budget-low">Budget: Low to High</option>
-            </select>
+          <div className="admin-project-request-view-controls">
+            <div className="admin-project-request-view-toggle">
+              <button
+                className={`admin-project-request-view-button ${viewMode === "card" ? "active" : ""}`}
+                onClick={() => setViewMode("card")}
+                title="Card View"
+              >
+                <span className="admin-project-request-view-icon">⊞</span>
+              </button>
+              <button
+                className={`admin-project-request-view-button ${viewMode === "table" ? "active" : ""}`}
+                onClick={() => setViewMode("table")}
+                title="Table View"
+              >
+                <span className="view-icon">☰</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Controls Section */}
+        <div className="admin-project-request-controls-section">
+          <div className="admin-project-request-search-container">
+            <div className="admin-project-request-search-box">
+              <span className="admin-project-request-search-icon">🔍</span>
+              <input
+                type="text"
+                placeholder="Search by project title, customer name, email, or description..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="admin-project-request-search-input"
+              />
+            </div>
           </div>
 
-          <button className="admin-page-refresh-btn" onClick={fetchRequests}>
-            🔄 Refresh
-          </button>
-        </div>
-      </div>
+          <div className="admin-project-request-filters-container">
+            <div className="admin-project-request-filter-group">
+              <label className="admin-project-request-filter-label">Status:</label>
+              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="admin-project-request-filter-select">
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="in-progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
 
-      {filteredRequests.length === 0 ? (
-        <div className="admin-page-no-requests">
-          <div className="admin-page-no-requests-icon">📝</div>
-          <h3>No Requests Found</h3>
-          <p>
-            {requests.length === 0
-              ? "No custom project requests have been submitted yet."
-              : "No requests match your current search criteria."}
-          </p>
+            <div className="admin-project-request-filter-group">
+              <label className="admin-project-request-filter-label">Sort by:</label>
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="admin-project-request-filter-select">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="budget-high">Budget: High to Low</option>
+                <option value="budget-low">Budget: Low to High</option>
+              </select>
+            </div>
+
+            <button className="admin-project-request-refresh-button" onClick={fetchRequests}>
+              🔄 Refresh
+            </button>
+          </div>
         </div>
-      ) : (
-        <div className="admin-page-requests-grid">
-          {filteredRequests.map((request, index) => (
-            <div
-              key={request.id}
-              className="admin-page-request-card"
-              style={{ "--delay": `${index * 0.1}s` }}
-              onClick={() => setSelectedRequest(request)}
-            >
-              <div className="admin-page-request-header">
-                <div className="admin-page-request-title-section">
-                  <h4 className="admin-page-request-title">{request.projectTitle}</h4>
-                  <div className="admin-page-request-badges">
-                    <span
-                      className="admin-page-status-badge"
-                      style={{
-                        backgroundColor: `${getStatusColor(request.status)}20`,
-                        color: getStatusColor(request.status),
-                        borderColor: getStatusColor(request.status),
-                      }}
-                    >
-                      <span className="admin-page-status-icon">{getStatusIcon(request.status)}</span>
-                      <span className="admin-page-status-text">{request.status || "Pending"}</span>
+
+        {/* Content Section */}
+        {filteredRequests.length === 0 ? (
+          <div className="admin-project-request-no-requests">
+            <div className="admin-project-request-no-requests-icon">📝</div>
+            <h3 className="admin-project-request-no-requests-title">No Requests Found</h3>
+            <p className="admin-project-request-no-requests-text">
+              {requests.length === 0
+                ? "No custom project requests have been submitted yet."
+                : `No ${activeTab === "accepted" ? "accepted " : ""}requests match your current search criteria.`}
+            </p>
+          </div>
+        ) : viewMode === "card" ? (
+          <div className="admin-project-request-cards-container">
+            {filteredRequests.map((request, index) => (
+              <div
+                key={request.id}
+                className="admin-project-request-request-card"
+                style={{ animationDelay: `${index * 0.1}s` }}
+                onClick={() => setSelectedRequest(request)}
+              >
+                <div className="admin-project-request-card-header">
+                  <div className="admin-project-request-card-title-section">
+                    <h3 className="admin-project-request-card-title">{request.projectTitle}</h3>
+                    <div className="admin-project-request-card-id">#{request.id.slice(-8)}</div>
+                  </div>
+                  <div className="admin-project-request-card-badges">
+                    <span className={`admin-project-request-status-badge status-${request.status || "pending"}`}>
+                      <span className="admin-project-request-badge-icon">{getStatusIcon(request.status)}</span>
+                      {request.status || "Pending"}
                     </span>
                     {request.priority && (
-                      <span
-                        className="admin-page-priority-badge"
-                        style={{
-                          backgroundColor: `${getPriorityColor(request.priority)}20`,
-                          color: getPriorityColor(request.priority),
-                          borderColor: getPriorityColor(request.priority),
-                        }}
-                      >
+                      <span className={`admin-project-request-priority-badge priority-${request.priority.toLowerCase()}`}>
+                        <span className="admin-project-request-badge-icon">{getPriorityIcon(request.priority)}</span>
                         {request.priority}
                       </span>
                     )}
                   </div>
                 </div>
-              </div>
 
-              <div className="admin-page-request-content">
-                <div className="admin-page-customer-info">
-                  <div className="admin-page-customer-name">👤 {request.customerName}</div>
-                  <div className="admin-page-customer-email">📧 {request.customerEmail}</div>
-                  {request.customerPhone && (
-                    <div className="admin-page-customer-phone">📱 {request.customerPhone}</div>
-                  )}
+                <div className="admin-project-request-card-customer">
+                  <div className="admin-project-request-customer-avatar">
+                    <span className="admin-project-request-avatar-text">{request.customerName?.charAt(0)?.toUpperCase()}</span>
+                  </div>
+                  <div className="admin-project-request-customer-details">
+                    <div className="admin-project-request-customer-name">{request.customerName}</div>
+                    <div className="admin-project-request-customer-email">{request.customerEmail}</div>
+                    {request.customerPhone && <div className="admin-project-request-customer-phone">📱 {request.customerPhone}</div>}
+                  </div>
                 </div>
 
-                <div className="admin-page-request-description">
+                <div className="admin-project-request-card-description">
                   <p>{request.description}</p>
                 </div>
 
-                <div className="admin-page-request-details">
-                  {request.budget && (
-                    <div className="admin-page-request-budget">
-                      <span className="admin-page-detail-label">Budget:</span>
-                      <span className="admin-page-detail-value">₹{request.budget.toLocaleString()}</span>
-                    </div>
-                  )}
-                  {request.timeline && (
-                    <div className="admin-page-request-timeline">
-                      <span className="admin-page-detail-label">Timeline:</span>
-                      <span className="admin-page-detail-value">{request.timeline}</span>
-                    </div>
-                  )}
-                  {request.category && (
-                    <div className="admin-page-request-category">
-                      <span className="admin-page-detail-label">Category:</span>
-                      <span className="admin-page-detail-value">{request.category}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="admin-page-request-footer">
-                  <div className="admin-page-request-date">
-                    📅 {request.createdAt?.toLocaleDateString()} at {request.createdAt?.toLocaleTimeString()}
-                  </div>
-                  <div className="admin-page-request-actions">
-                    <button
-                      className="admin-page-action-btn admin-page-view-btn"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setSelectedRequest(request)
-                      }}
-                    >
-                      👁️ View
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Request Detail Modal */}
-      {selectedRequest && (
-        <div className="admin-page-modal-overlay" onClick={() => setSelectedRequest(null)}>
-          <div className="admin-page-modal-content admin-page-request-detail-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="admin-page-modal-header">
-              <div className="admin-page-modal-title-section">
-                <h2 className="admin-page-modal-title">Custom Project Request Details</h2>
-                <div className="admin-page-request-id-badge">#{selectedRequest.id.slice(-8)}</div>
-              </div>
-              <button className="admin-page-modal-close" onClick={() => setSelectedRequest(null)}>
-                <span>✕</span>
-              </button>
-            </div>
-
-            <div className="admin-page-modal-body">
-              <div className="admin-page-request-overview">
-                <div className="admin-page-overview-grid">
-                  <div className="admin-page-overview-card">
-                    <div className="admin-page-overview-icon">📝</div>
-                    <div className="admin-page-overview-content">
-                      <h4>Project Title</h4>
-                      <p>{selectedRequest.projectTitle}</p>
-                    </div>
-                  </div>
-
-                  <div className="admin-page-overview-card">
-                    <div className="admin-page-overview-icon">💰</div>
-                    <div className="admin-page-overview-content">
-                      <h4>Budget</h4>
-                      <p>₹{selectedRequest.budget?.toLocaleString() || "Not specified"}</p>
-                    </div>
-                  </div>
-
-                  <div className="admin-page-overview-card">
-                    <div className="admin-page-overview-icon">⏱️</div>
-                    <div className="admin-page-overview-content">
-                      <h4>Timeline</h4>
-                      <p>{selectedRequest.timeline || "Not specified"}</p>
-                    </div>
-                  </div>
-
-                  <div className="admin-page-overview-card">
-                    <div className="admin-page-overview-icon">📂</div>
-                    <div className="admin-page-overview-content">
-                      <h4>Category</h4>
-                      <p>{selectedRequest.category || "Not specified"}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="admin-page-request-sections">
-                <div className="admin-page-section-grid">
-                  {/* Customer Information */}
-                  <div className="admin-page-info-section">
-                    <h3 className="admin-page-section-title">
-                      <span className="admin-page-section-icon">👤</span>
-                      Customer Information
-                    </h3>
-                    <div className="admin-page-info-content">
-                      <div className="admin-page-info-row">
-                        <span className="admin-page-info-label">Name:</span>
-                        <span className="admin-page-info-value">{selectedRequest.customerName}</span>
+                <div className="admin-project-request-card-details">
+                  <div className="admin-project-request-detail-grid">
+                    {request.budget && (
+                      <div className="admin-project-request-detail-item">
+                        <span className="admin-project-request-detail-icon">💰</span>
+                        <span className="admin-project-request-detail-value">₹{request.budget.toLocaleString()}</span>
                       </div>
-                      <div className="admin-page-info-row">
-                        <span className="admin-page-info-label">Email:</span>
-                        <span className="admin-page-info-value">{selectedRequest.customerEmail}</span>
+                    )}
+                    {request.timeline && (
+                      <div className="admin-project-request-detail-item">
+                        <span className="admin-project-request-detail-icon">⏱️</span>
+                        <span className="admin-project-request-detail-value">{request.timeline}</span>
                       </div>
-                      {selectedRequest.customerPhone && (
-                        <div className="admin-page-info-row">
-                          <span className="admin-page-info-label">Phone:</span>
-                          <span className="admin-page-info-value">{selectedRequest.customerPhone}</span>
+                    )}
+                    {request.category && (
+                      <div className="admin-project-request-detail-item">
+                        <span className="admin-project-request-detail-icon">📂</span>
+                        <span className="admin-project-request-detail-value">{request.category}</span>
+                      </div>
+                    )}
+                    <div className="admin-project-request-detail-item">
+                      <span className="admin-project-request-detail-icon">📅</span>
+                      <span className="admin-project-request-detail-value">{request.createdAt?.toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="admin-project-request-card-actions">
+                  <button
+                    className="admin-project-request-action-button view-button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSelectedRequest(request)
+                    }}
+                  >
+                    👁️ View Details
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="admin-project-request-table-container">
+            <div className="admin-project-request-table-wrapper">
+              <table className="admin-project-request-requests-table">
+                <thead>
+                  <tr>
+                    <th>Project</th>
+                    <th>Customer</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Budget</th>
+                    <th>Timeline</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredRequests.map((request, index) => (
+                    <tr key={request.id} className="admin-project-request-table-row" style={{ animationDelay: `${index * 0.05}s` }}>
+                      <td className="admin-project-request-project-cell">
+                        <div className="admin-project-request-project-info">
+                          <div className="admin-project-request-project-title">{request.projectTitle}</div>
+                          <div className="admin-project-request-project-id">#{request.id.slice(-8)}</div>
                         </div>
-                      )}
-                      {selectedRequest.company && (
-                        <div className="admin-page-info-row">
-                          <span className="admin-page-info-label">Company:</span>
-                          <span className="admin-page-info-value">{selectedRequest.company}</span>
+                      </td>
+                      <td className="admin-project-request-customer-cell">
+                        <div className="admin-project-request-customer-info">
+                          <div className="admin-project-request-customer-name">{request.customerName}</div>
+                          <div className="admin-project-request-customer-email">{request.customerEmail}</div>
                         </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Status Management */}
-                  <div className="admin-page-status-section">
-                    <h3 className="admin-page-section-title">
-                      <span className="admin-page-section-icon">📋</span>
-                      Status Management
-                    </h3>
-                    <div className="admin-page-status-content">
-                      <div className="admin-page-current-status">
-                        <span className="admin-page-status-label">Current Status:</span>
-                        <div
-                          className="admin-page-status-badge"
-                          style={{
-                            backgroundColor: `${getStatusColor(selectedRequest.status)}20`,
-                            color: getStatusColor(selectedRequest.status),
-                            borderColor: getStatusColor(selectedRequest.status),
-                          }}
-                        >
-                          <span className="admin-page-status-icon">{getStatusIcon(selectedRequest.status)}</span>
-                          <span className="admin-page-status-text">{selectedRequest.status || "Pending"}</span>
-                        </div>
-                      </div>
-
-                      <div className="admin-page-status-actions">
+                      </td>
+                      <td className="admin-project-request-status-cell">
+                        <span className={`admin-project-request-status-badge status-${request.status || "pending"}`}>
+                          <span className="admin-project-request-badge-icon">{getStatusIcon(request.status)}</span>
+                          {request.status || "Pending"}
+                        </span>
+                      </td>
+                      <td className="admin-project-request-priority-cell">
+                        {request.priority && (
+                          <span className={`admin-project-request-priority-badge priority-${request.priority.toLowerCase()}`}>
+                            <span className="admin-project-request-badge-icon">{getPriorityIcon(request.priority)}</span>
+                            {request.priority}
+                          </span>
+                        )}
+                      </td>
+                      <td className="admin-project-request-budget-cell">{request.budget ? `₹${request.budget.toLocaleString()}` : "-"}</td>
+                      <td className="admin-project-request-timeline-cell">{request.timeline || "-"}</td>
+                      <td className="admin-project-request-date-cell">{request.createdAt?.toLocaleDateString()}</td>
+                      <td className="admin-project-request-actions-cell">
                         <button
-                          onClick={() => updateRequestStatus(selectedRequest.id, "pending")}
-                          disabled={updating}
-                          className="admin-page-status-btn admin-page-pending-btn"
+                          className="admin-project-request-table-action-button"
+                          onClick={() => setSelectedRequest(request)}
+                          title="View Details"
                         >
-                          ⏳ Pending
+                          👁️
                         </button>
-                        <button
-                          onClick={() => updateRequestStatus(selectedRequest.id, "in-progress")}
-                          disabled={updating}
-                          className="admin-page-status-btn admin-page-progress-btn"
-                        >
-                          ⚙️ In Progress
-                        </button>
-                        <button
-                          onClick={() => updateRequestStatus(selectedRequest.id, "completed")}
-                          disabled={updating}
-                          className="admin-page-status-btn admin-page-completed-btn"
-                        >
-                          ✅ Completed
-                        </button>
-                        <button
-                          onClick={() => updateRequestStatus(selectedRequest.id, "rejected")}
-                          disabled={updating}
-                          className="admin-page-status-btn admin-page-rejected-btn"
-                        >
-                          ❌ Rejected
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Project Description */}
-                <div className="admin-page-description-section">
-                  <h3 className="admin-page-section-title">
-                    <span className="admin-page-section-icon">📄</span>
-                    Project Description
-                  </h3>
-                  <div className="admin-page-description-content">
-                    <p>{selectedRequest.description}</p>
-                  </div>
-                </div>
-
-                {/* Technical Requirements */}
-                {selectedRequest.technicalRequirements && (
-                  <div className="admin-page-technical-section">
-                    <h3 className="admin-page-section-title">
-                      <span className="admin-page-section-icon">⚙️</span>
-                      Technical Requirements
-                    </h3>
-                    <div className="admin-page-technical-content">
-                      <p>{selectedRequest.technicalRequirements}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Additional Information */}
-                {selectedRequest.additionalInfo && (
-                  <div className="admin-page-additional-section">
-                    <h3 className="admin-page-section-title">
-                      <span className="admin-page-section-icon">ℹ️</span>
-                      Additional Information
-                    </h3>
-                    <div className="admin-page-additional-content">
-                      <p>{selectedRequest.additionalInfo}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="admin-page-modal-footer">
-              <button
-                className="admin-page-btn admin-page-btn-danger"
-                onClick={() => deleteRequest(selectedRequest.id)}
-                disabled={updating}
-              >
-                🗑️ Delete Request
-              </button>
-              <button className="admin-page-btn admin-page-btn-secondary" onClick={() => setSelectedRequest(null)}>
-                Close
-              </button>
-              <button className="admin-page-btn admin-page-btn-primary">📧 Send Response</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Modal */}
+        {selectedRequest && (
+          <div className="admin-project-request-modal-overlay" onClick={() => setSelectedRequest(null)}>
+            <div className="admin-project-request-modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="admin-project-request-modal-header">
+                <div className="admin-project-request-modal-title-section">
+                  <h2 className="admin-project-request-modal-title">Project Request Details</h2>
+                  <div className="admin-project-request-modal-id">#{selectedRequest.id.slice(-8)}</div>
+                </div>
+                <button className="admin-project-request-modal-close" onClick={() => setSelectedRequest(null)}>
+                  ✕
+                </button>
+              </div>
+
+              <div className="admin-project-request-modal-body">
+                <div className="admin-project-request-modal-overview">
+                  <div className="admin-project-request-overview-grid">
+                    <div className="admin-project-request-overview-card">
+                      <div className="admin-project-request-overview-icon">📝</div>
+                      <div className="admin-project-request-overview-content">
+                        <h4>Project Title</h4>
+                        <p>{selectedRequest.projectTitle}</p>
+                      </div>
+                    </div>
+                    <div className="admin-project-request-overview-card">
+                      <div className="admin-project-request-overview-icon">💰</div>
+                      <div className="admin-project-request-overview-content">
+                        <h4>Budget</h4>
+                        <p>₹{selectedRequest.budget?.toLocaleString() || "Not specified"}</p>
+                      </div>
+                    </div>
+                    <div className="admin-project-request-overview-card">
+                      <div className="admin-project-request-overview-icon">⏱️</div>
+                      <div className="admin-project-request-overview-content">
+                        <h4>Timeline</h4>
+                        <p>{selectedRequest.timeline || "Not specified"}</p>
+                      </div>
+                    </div>
+                    <div className="admin-project-request-overview-card">
+                      <div className="admin-project-request-overview-icon">📂</div>
+                      <div className="admin-project-request-overview-content">
+                        <h4>Category</h4>
+                        <p>{selectedRequest.category || "Not specified"}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="admin-project-request-modal-sections">
+                  <div className="admin-project-request-modal-section">
+                    <h3 className="admin-project-request-section-title">
+                      <span className="admin-project-request-section-icon">👤</span>
+                      Customer Information
+                    </h3>
+                    <div className="admin-project-request-section-content">
+                      <div className="admin-project-request-info-grid">
+                        <div className="admin-project-request-info-item">
+                          <label>Name:</label>
+                          <span>{selectedRequest.customerName}</span>
+                        </div>
+                        <div className="admin-project-request-info-item">
+                          <label>Email:</label>
+                          <span>{selectedRequest.customerEmail}</span>
+                        </div>
+                        {selectedRequest.customerPhone && (
+                          <div className="admin-project-request-info-item">
+                            <label>Phone:</label>
+                            <span>{selectedRequest.customerPhone}</span>
+                          </div>
+                        )}
+                        {selectedRequest.company && (
+                          <div className="admin-project-request-info-item">
+                            <label>Company:</label>
+                            <span>{selectedRequest.company}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="admin-project-request-modal-section">
+                    <h3 className="admin-project-request-section-title">
+                      <span className="admin-project-request-section-icon">📄</span>
+                      Project Description
+                    </h3>
+                    <div className="admin-project-request-section-content">
+                      <div className="admin-project-request-description-text">{selectedRequest.description}</div>
+                    </div>
+                  </div>
+
+                  <div className="admin-project-request-modal-section">
+                    <h3 className="admin-project-request-section-title">
+                      <span className="admin-project-request-section-icon">⚙️</span>
+                      Status Management
+                    </h3>
+                    <div className="admin-project-request-section-content">
+                      <div className="admin-project-request-status-actions">
+                        {["pending", "in-progress", "completed", "rejected"].map((status) => (
+                          <button
+                            key={status}
+                            onClick={() => updateRequestStatus(selectedRequest.id, status)}
+                            disabled={updating}
+                            className={`admin-project-request-status-action-button ${selectedRequest.status === status ? "active" : ""
+                              } admin-project-request-status-${status}`}
+                          >
+                            <span className="admin-project-request-status-icon">{getStatusIcon(status)}</span>
+                            {status.charAt(0).toUpperCase() + status.slice(1).replace("-", " ")}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="admin-project-request-modal-footer">
+                <button
+                  className="admin-project-request-footer-button admin-project-request-delete-button"
+                  onClick={() => deleteRequest(selectedRequest.id)}
+                  disabled={updating}
+                >
+                  🗑️ Delete Request
+                </button>
+                <button className="admin-project-request-footer-button admin-project-request-secondary-button" onClick={() => setSelectedRequest(null)}>
+                  Close
+                </button>
+                <button className="admin-project-request-footer-button admin-project-request-primary-button">📧 Send Response</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
