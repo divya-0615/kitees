@@ -511,3 +511,167 @@
     align-items: stretch;
   }
 }
+
+.admin-image-count-container {
+  margin-bottom: 1.5rem;
+}
+
+.admin-image-count-input {
+  width: 100px;
+  margin-left: 0.5rem;
+}
+
+.admin-image-upload-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.admin-image-upload-item {
+  border: 2px dashed #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  transition: border-color 0.2s ease;
+}
+
+.admin-image-upload-item:hover {
+  border-color: #3b82f6;
+}
+
+.admin-image-upload-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.admin-image-upload-header h5 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.admin-card-image-badge {
+  background-color: #fef3c7;
+  color: #92400e;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.admin-image-upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  color: #6b7280;
+}
+
+.admin-image-upload-placeholder p {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.875rem;
+}
+
+.admin-uploaded-image-container {
+  position: relative;
+}
+
+.admin-uploaded-image-preview {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.admin-image-actions {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  gap: 5px;
+}
+
+.admin-set-card-btn,
+.admin-image-delete-btn {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.admin-set-card-btn:hover {
+  background-color: #fef3c7;
+  transform: translateY(-2px);
+}
+
+.admin-image-delete-btn:hover {
+  background-color: #ffebee;
+  transform: translateY(-2px);
+}
+
+.admin-set-card-btn svg {
+  color: #f59e0b;
+}
+
+.admin-image-delete-btn svg {
+  color: #f44336;
+}
+
+.kit-admin-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.kit-edit-btn,
+.kit-delete-btn {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.kit-edit-btn:hover {
+  background-color: #e2f5ff;
+  transform: translateY(-2px);
+}
+
+.kit-delete-btn:hover {
+  background-color: #ffebee;
+  transform: translateY(-2px);
+}
+
+.kit-edit-btn svg,
+.kit-delete-btn svg {
+  color: #333;
+}
+
+.kit-delete-btn:hover svg {
+  color: #f44336;
+}
+
+.kit-edit-btn:hover svg {
+  color: #2196f3;
+}

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import HeroSection from "../components/HeroSection"
@@ -11,12 +11,23 @@ import TestimonialsSection from "../components/TestimonialsSection"
 import NewsletterSection from "../components/NewsletterSection"
 import "./Home.css"
 
+import { useAuth } from "../contexts/AuthContext"
+
 const HomePage = () => {
     const [activeTab, setActiveTab] = useState("available-kits")
 
     const handleTabChange = (tab) => {
         setActiveTab(tab)
     }
+
+    const { currentUser, userData } = useAuth()
+
+    useEffect(() => {
+        if (userData.email === "kitees@gmail.com") {
+            // Redirect to admin panel if the user is an admin
+            window.location.href = "/admin"
+        }
+    }, [])
 
     return (
         <div className="homepage">

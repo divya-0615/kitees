@@ -1,10 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { collection, addDoc, getDocs, query, orderBy } from "firebase/firestore"
+import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc } from "firebase/firestore"
 import { db } from "../firebase"
 import "./MiniProjects.css"
 import ProjectDetailModal from "../components/ProjectDetailModal"
+import { IKContext, IKUpload } from "imagekitio-react"
+import { Trash2, Edit, Upload, Star } from "lucide-react"
+import toast from "react-hot-toast"
 
 const MiniProjectsAdmin = () => {
     const [showForm, setShowForm] = useState(false)
@@ -14,37 +17,60 @@ const MiniProjectsAdmin = () => {
     const [searchTerm, setSearchTerm] = useState("")
     const [selectedProject, setSelectedProject] = useState(null)
 
+    const [isEditing, setIsEditing] = useState(false)
+    const [editingId, setEditingId] = useState(null)
+    const [isUploading, setIsUploading] = useState(false)
+    const [imageCount, setImageCount] = useState(1)
+
+    // ImageKit configuration
+    const urlEndpoint = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT
+    const publicKey = process.env.REACT_APP_IMAGEKIT_PUBLIC_KEY
+
     const [formData, setFormData] = useState({
         title: "",
         price: "",
-        images: [""],
+        images: [],
         description: "",
         difficulty: "",
         duration: "",
         rating: 4.5,
-        reviews: 0,
         category: "",
         components: [],
         fullDescription: "",
         features: [],
         learningOutcomes: [],
+        fileIds: [],
     })
 
     const [componentForm, setComponentForm] = useState({
         name: "",
-        price: "",
         quantity: 1,
     })
 
     const [featureInput, setFeatureInput] = useState("")
     const [learningInput, setLearningInput] = useState("")
-    const [imageInput, setImageInput] = useState("")
 
     useEffect(() => {
         if (showPreview) {
             fetchProjects()
         }
     }, [showPreview])
+
+    // Authenticator for ImageKit upload requests
+    const authenticator = async () => {
+        try {
+            const response = await fetch("http://localhost:4000/auth")
+            if (!response.ok) {
+                const errorText = await response.text()
+                throw new Error(`Request failed with status ${response.status}: ${errorText}`)
+            }
+            const data = await response.json()
+            const { signature, expire, token } = data
+            return { signature, expire, token }
+        } catch (error) {
+            throw new Error(`Authentication request failed: ${error.message}`)
+        }
+    }
 
     const fetchProjects = async () => {
         try {
@@ -74,12 +100,12 @@ const MiniProjectsAdmin = () => {
     }
 
     const addComponent = () => {
-        if (componentForm.name && componentForm.price) {
+        if (componentForm.name) {
             setFormData((prev) => ({
                 ...prev,
                 components: [...prev.components, { ...componentForm }],
             }))
-            setComponentForm({ name: "", price: "", quantity: 1 })
+            setComponentForm({ name: "", quantity: 1 })
         }
     }
 
@@ -124,74 +150,146 @@ const MiniProjectsAdmin = () => {
         }))
     }
 
-    const addImage = () => {
-        if (imageInput.trim()) {
-            setFormData((prev) => ({
-                ...prev,
-                images: [...prev.images, imageInput.trim()],
-            }))
-            setImageInput("")
-        }
-    }
-
     const removeImage = (index) => {
-        setFormData((prev) => ({
-            ...prev,
-            images: prev.images.filter((_, i) => i !== index),
-        }))
+        setFormData((prev) => {
+            const newImages = [...prev.images]
+            const newFileIds = [...prev.fileIds]
+            newImages.splice(index, 1)
+            newFileIds.splice(index, 1)
+            return {
+                ...prev,
+                images: newImages,
+                fileIds: newFileIds,
+            }
+        })
     }
 
-    const updateImage = (index, value) => {
-        setFormData((prev) => ({
-            ...prev,
-            images: prev.images.map((img, i) => (i === index ? value : img)),
-        }))
+    const handleImageCountChange = (count) => {
+        const newCount = Math.max(1, Math.min(10, count)) // Limit between 1 and 10
+        setImageCount(newCount)
+
+        // Initialize empty slots for images if needed
+        setFormData((prev) => {
+            const newImages = [...prev.images]
+            const newFileIds = [...prev.fileIds]
+
+            while (newImages.length < newCount) {
+                newImages.push("")
+                newFileIds.push("")
+            }
+
+            return {
+                ...prev,
+                images: newImages.slice(0, newCount),
+                fileIds: newFileIds.slice(0, newCount),
+            }
+        })
+    }
+
+    const handleImageUploadSuccess = (data, index) => {
+        setFormData((prev) => {
+            const newImages = [...prev.images]
+            const newFileIds = [...prev.fileIds]
+
+            newImages[index] = data.url
+            newFileIds[index] = data.fileId
+
+            return {
+                ...prev,
+                images: newImages,
+                fileIds: newFileIds,
+            }
+        })
+
+        toast.success(`Image ${index + 1} uploaded successfully!`)
+    }
+
+    const setAsCardImage = (index) => {
+        setFormData((prev) => {
+            const newImages = [...prev.images]
+            const newFileIds = [...prev.fileIds]
+
+            // Move selected image to first position
+            const selectedImage = newImages[index]
+            const selectedFileId = newFileIds[index]
+
+            newImages.splice(index, 1)
+            newFileIds.splice(index, 1)
+
+            newImages.unshift(selectedImage)
+            newFileIds.unshift(selectedFileId)
+
+            return {
+                ...prev,
+                images: newImages,
+                fileIds: newFileIds,
+            }
+        })
+
+        toast.success("Image set as card display image!")
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
             setLoading(true)
+            setIsUploading(true)
 
+            // Prepare project data
             const projectData = {
                 ...formData,
                 price: Number.parseFloat(formData.price),
                 rating: Number.parseFloat(formData.rating),
-                reviews: Number.parseInt(formData.reviews),
                 components: formData.components.map((comp) => ({
-                    ...comp,
-                    price: Number.parseFloat(comp.price),
+                    name: comp.name,
                     quantity: Number.parseInt(comp.quantity),
                 })),
                 images: formData.images.filter((img) => img.trim() !== ""),
+                fileIds: formData.fileIds.filter((id, index) => formData.images[index].trim() !== ""),
                 createdAt: new Date(),
             }
 
-            await addDoc(collection(db, "mini-projects"), projectData)
+            if (isEditing && editingId) {
+                // Update existing project
+                await updateDoc(doc(db, "mini-projects", editingId), projectData)
+                alert("Mini project updated successfully!")
+            } else {
+                // Add new project
+                await addDoc(collection(db, "mini-projects"), projectData)
+                alert("Mini project added successfully!")
+            }
 
-            alert("Mini project added successfully!")
-            setFormData({
-                title: "",
-                price: "",
-                images: [""],
-                description: "",
-                difficulty: "",
-                duration: "",
-                rating: 4.5,
-                reviews: 0,
-                category: "",
-                components: [],
-                fullDescription: "",
-                features: [],
-                learningOutcomes: [],
-            })
+            resetForm()
             setShowForm(false)
+            fetchProjects()
         } catch (error) {
-            console.error("Error adding project:", error)
-            alert("Failed to add project")
+            console.error("Error saving project:", error)
+            alert(isEditing ? "Failed to update project" : "Failed to add project")
         } finally {
             setLoading(false)
+            setIsUploading(false)
         }
+    }
+
+    const resetForm = () => {
+        setFormData({
+            title: "",
+            price: "",
+            images: [],
+            description: "",
+            difficulty: "",
+            duration: "",
+            rating: 4.5,
+            category: "",
+            components: [],
+            fullDescription: "",
+            features: [],
+            learningOutcomes: [],
+            fileIds: [],
+        })
+        setImageCount(1)
+        setIsEditing(false)
+        setEditingId(null)
     }
 
     const getDifficultyColor = (difficulty) => {
@@ -225,6 +323,73 @@ const MiniProjectsAdmin = () => {
             project.description?.toLowerCase().includes(searchTerm.toLowerCase()),
     )
 
+    const handleEdit = (project) => {
+        setFormData({
+            title: project.title || "",
+            price: project.price?.toString() || "",
+            images: project.images || [],
+            description: project.description || "",
+            difficulty: project.difficulty || "",
+            duration: project.duration || "",
+            rating: project.rating || 4.5,
+            category: project.category || "",
+            components: project.components || [],
+            fullDescription: project.fullDescription || "",
+            features: project.features || [],
+            learningOutcomes: project.learningOutcomes || [],
+            fileIds: project.fileIds || Array(project.images?.length || 0).fill(""),
+        })
+        setImageCount(project.images?.length || 1)
+        setIsEditing(true)
+        setEditingId(project.id)
+        setShowForm(true)
+        setShowPreview(false)
+    }
+
+    const handleDelete = async (projectId, fileIds = []) => {
+        if (window.confirm("Are you sure you want to delete this project?")) {
+            try {
+                setLoading(true)
+
+                // Delete from Firestore
+                await deleteDoc(doc(db, "mini-projects", projectId))
+
+                // Delete images from ImageKit if fileIds exist
+                if (fileIds && fileIds.length > 0) {
+                    for (const fileId of fileIds) {
+                        if (fileId) {
+                            try {
+                                await fetch("http://localhost:4000/deleteImage", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ fileId }),
+                                })
+                            } catch (imageError) {
+                                console.error("Error deleting image from ImageKit:", imageError)
+                                // Continue even if image deletion fails
+                            }
+                        }
+                    }
+                }
+
+                // Update local state
+                setProjects(projects.filter((project) => project.id !== projectId))
+                alert("Project deleted successfully!")
+            } catch (error) {
+                console.error("Error deleting project:", error)
+                alert("Failed to delete project")
+            } finally {
+                setLoading(false)
+            }
+        }
+    }
+
+    const cancelForm = () => {
+        resetForm()
+        setShowForm(false)
+        setShowPreview(true)
+    }
+
     return (
         <div className="admin-page-mini-projects">
             <div className="admin-page-projects-header">
@@ -247,7 +412,7 @@ const MiniProjectsAdmin = () => {
                     <div className="admin-page-form-header">
                         <h3 className="admin-page-form-title">
                             <span className="admin-page-form-icon">🚀</span>
-                            Add New Mini Project
+                            {isEditing ? "Edit Mini Project" : "Add New Mini Project"}
                         </h3>
                     </div>
 
@@ -371,36 +536,75 @@ const MiniProjectsAdmin = () => {
                                 Project Images
                             </h4>
 
-                            <div className="admin-page-images-list">
-                                {formData.images.map((image, index) => (
-                                    <div key={index} className="admin-page-image-item">
-                                        <input
-                                            type="url"
-                                            placeholder="Image URL"
-                                            value={image}
-                                            onChange={(e) => updateImage(index, e.target.value)}
-                                            className="admin-page-form-input"
-                                        />
-                                        {formData.images.length > 1 && (
-                                            <button type="button" onClick={() => removeImage(index)} className="admin-page-remove-btn">
-                                                ❌
-                                            </button>
-                                        )}
-                                    </div>
-                                ))}
+                            {/* Image Count Input */}
+                            <div className="admin-image-count-container">
+                                <label>Number of Images to Upload (1-10):</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="10"
+                                    value={imageCount}
+                                    onChange={(e) => handleImageCountChange(Number.parseInt(e.target.value) || 1)}
+                                    className="admin-page-form-input admin-image-count-input"
+                                />
                             </div>
 
-                            <div className="admin-page-add-image-form">
-                                <input
-                                    type="url"
-                                    placeholder="Add another image URL"
-                                    value={imageInput}
-                                    onChange={(e) => setImageInput(e.target.value)}
-                                    className="admin-page-form-input"
-                                />
-                                <button type="button" onClick={addImage} className="admin-page-add-image-btn">
-                                    ➕ Add Image
-                                </button>
+                            {/* Dynamic File Upload Inputs */}
+                            <div className="admin-image-upload-grid">
+                                <IKContext publicKey={publicKey} urlEndpoint={urlEndpoint} authenticator={authenticator}>
+                                    {Array.from({ length: imageCount }, (_, index) => (
+                                        <div key={index} className="admin-image-upload-item">
+                                            <div className="admin-image-upload-header">
+                                                <h5>Image {index + 1}</h5>
+                                                {index === 0 && <span className="admin-card-image-badge">Card Display</span>}
+                                            </div>
+
+                                            {formData.images[index] ? (
+                                                <div className="admin-uploaded-image-container">
+                                                    <img
+                                                        src={formData.images[index] || "/placeholder.svg"}
+                                                        alt={`Project image ${index + 1}`}
+                                                        className="admin-uploaded-image-preview"
+                                                    />
+                                                    <div className="admin-image-actions">
+                                                        {index !== 0 && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setAsCardImage(index)}
+                                                                className="admin-set-card-btn"
+                                                                title="Set as card display image"
+                                                            >
+                                                                <Star size={14} />
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeImage(index)}
+                                                            className="admin-image-delete-btn"
+                                                            title="Delete image"
+                                                        >
+                                                            <Trash2 size={14} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="admin-image-upload-placeholder">
+                                                    <Upload size={24} />
+                                                    <p>Upload Image {index + 1}</p>
+                                                    <IKUpload
+                                                        fileName={`project-image-${index + 1}.png`}
+                                                        onError={(error) => {
+                                                            console.error("Error uploading image: ", error)
+                                                            toast.error("Please Turn on the server...!")
+                                                            alert("Error uploading image: Network Error\nPlease kindly turn on the server...!")
+                                                        }}
+                                                        onSuccess={(data) => handleImageUploadSuccess(data, index)}
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </IKContext>
                             </div>
                         </div>
 
@@ -422,14 +626,6 @@ const MiniProjectsAdmin = () => {
                                     />
                                     <input
                                         type="number"
-                                        step="0.01"
-                                        placeholder="Price"
-                                        value={componentForm.price}
-                                        onChange={(e) => setComponentForm((prev) => ({ ...prev, price: e.target.value }))}
-                                        className="admin-page-form-input"
-                                    />
-                                    <input
-                                        type="number"
                                         placeholder="Qty"
                                         value={componentForm.quantity}
                                         onChange={(e) => setComponentForm((prev) => ({ ...prev, quantity: e.target.value }))}
@@ -446,9 +642,7 @@ const MiniProjectsAdmin = () => {
                                     <div key={index} className="admin-page-component-item">
                                         <div className="admin-page-component-info">
                                             <span className="admin-page-component-name">{component.name}</span>
-                                            <span className="admin-page-component-details">
-                                                ₹{component.price} × {component.quantity}
-                                            </span>
+                                            <span className="admin-page-component-details">Qty: {component.quantity}</span>
                                         </div>
                                         <button type="button" onClick={() => removeComponent(index)} className="admin-page-remove-btn">
                                             ❌
@@ -527,15 +721,17 @@ const MiniProjectsAdmin = () => {
                         </div>
 
                         <div className="admin-page-form-actions">
-                            <button
-                                type="button"
-                                onClick={() => setShowForm(false)}
-                                className="admin-page-btn admin-page-btn-secondary"
-                            >
+                            <button type="button" onClick={cancelForm} className="admin-page-btn admin-page-btn-secondary">
                                 Cancel
                             </button>
                             <button type="submit" disabled={loading} className="admin-page-btn admin-page-btn-primary">
-                                {loading ? "Adding Project..." : "Add Project"}
+                                {loading
+                                    ? isEditing
+                                        ? "Updating Project..."
+                                        : "Adding Project..."
+                                    : isEditing
+                                        ? "Update Project"
+                                        : "Add Project"}
                             </button>
                         </div>
                     </form>
@@ -577,11 +773,43 @@ const MiniProjectsAdmin = () => {
                     ) : (
                         <div className="admin-page-projects-grid">
                             {filteredProjects.map((project, index) => (
-                                <div key={project.id} className="mini-projects-section-project-card" style={{ "--delay": `${index * 0.1}s` }}>
+                                <div
+                                    key={project.id}
+                                    className="mini-projects-section-project-card"
+                                    style={{ "--delay": `${index * 0.1}s` }}
+                                >
                                     {/* Project Image */}
                                     <div className="mini-projects-section-project-image-container">
-                                        <img src={project.images[0] || "/placeholder.svg"} alt={project.title} className="mini-projects-section-project-image" />
-                                        <div className="mini-projects-section-category-badge" style={{ backgroundColor: getCategoryColor(project.category) }}>
+                                        <img
+                                            src={project.images[0] || "/placeholder.svg"}
+                                            alt={project.title}
+                                            className="mini-projects-section-project-image"
+                                        />
+                                        {/* Admin Actions */}
+                                        <div className="kit-admin-actions">
+                                            <button
+                                                className="kit-edit-btn"
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    handleEdit(project)
+                                                }}
+                                            >
+                                                <Edit size={16} />
+                                            </button>
+                                            <button
+                                                className="kit-delete-btn"
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    handleDelete(project.id, project.fileIds)
+                                                }}
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                        <div
+                                            className="mini-projects-section-category-badge"
+                                            style={{ backgroundColor: getCategoryColor(project.category) }}
+                                        >
                                             {project.category}
                                         </div>
                                         <div className="mini-projects-section-rating-badge">
@@ -624,7 +852,10 @@ const MiniProjectsAdmin = () => {
                                                 <span className="mini-projects-section-price-currency">₹</span>
                                                 <span className="mini-projects-section-price-value">{project.price}</span>
                                             </div>
-                                            <button className="mini-projects-section-view-details-btn" onClick={() => setSelectedProject(project)}>
+                                            <button
+                                                className="mini-projects-section-view-details-btn"
+                                                onClick={() => setSelectedProject(project)}
+                                            >
                                                 View Details
                                             </button>
                                         </div>

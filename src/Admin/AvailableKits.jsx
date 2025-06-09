@@ -1,16 +1,30 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { collection, addDoc, getDocs, query, orderBy } from "firebase/firestore"
+import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc } from "firebase/firestore"
 import { db } from "../firebase"
 import "./AvailableKits.css"
 import KitDetailModal from "../components/KitDetailModel"
+import { IKContext, IKUpload } from "imagekitio-react"
+import { Upload, Trash2, Edit } from "lucide-react"
+import toast from "react-hot-toast"
+
 const AvailableKitsAdmin = () => {
     const [showForm, setShowForm] = useState(false)
     const [showPreview, setShowPreview] = useState(true)
     const [kits, setKits] = useState([])
     const [loading, setLoading] = useState(false)
     const [searchTerm, setSearchTerm] = useState("")
+    const [isEditing, setIsEditing] = useState(false)
+    const [editingId, setEditingId] = useState(null)
+    const [imageUploadedData, setImageUploadedData] = useState(null)
+    const [preview, setPreview] = useState(null)
+    const [isUploading, setIsUploading] = useState(false)
+
+    const urlEndpoint = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT
+    const publicKey = process.env.REACT_APP_IMAGEKIT_PUBLIC_KEY
+    // const urlEndpoint = "https://ik.imagekit.io/akhil8605unicore/"
+    // const publicKey = "public_I0GmeI/LmzQrV/AIWLepSwXKzk4="
 
     const [formData, setFormData] = useState({
         title: "",
@@ -27,6 +41,7 @@ const AvailableKitsAdmin = () => {
         fullDescription: "",
         features: [],
         images: [],
+        fileId: "",
     })
 
     const [componentForm, setComponentForm] = useState({
@@ -36,6 +51,22 @@ const AvailableKitsAdmin = () => {
     })
 
     const [featureInput, setFeatureInput] = useState("")
+
+    // Authenticator for ImageKit upload requests
+    const authenticator = async () => {
+        try {
+            const response = await fetch("http://localhost:4000/auth")
+            if (!response.ok) {
+                const errorText = await response.text()
+                throw new Error(`Request failed with status ${response.status}: ${errorText}`)
+            }
+            const data = await response.json()
+            const { signature, expire, token } = data
+            return { signature, expire, token }
+        } catch (error) {
+            throw new Error(`Authentication request failed: ${error.message}`)
+        }
+    }
 
     useEffect(() => {
         if (showPreview) {
@@ -104,10 +135,27 @@ const AvailableKitsAdmin = () => {
         }))
     }
 
+    // Handle image change for preview
+    const handleImageChange = (e) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                setPreview(reader.result)
+            }
+            reader.readAsDataURL(file)
+        }
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
             setLoading(true)
+            setIsUploading(true)
+
+            // Use the uploaded image URL or the existing one if not changed
+            const imageUrl = imageUploadedData ? imageUploadedData.url : formData.image
+            const fileId = imageUploadedData ? imageUploadedData.fileId : formData.fileId
 
             const kitData = {
                 ...formData,
@@ -120,36 +168,121 @@ const AvailableKitsAdmin = () => {
                     price: Number.parseFloat(comp.price),
                     quantity: Number.parseInt(comp.quantity),
                 })),
-                images: formData.image ? [formData.image] : [],
+                image: imageUrl,
+                fileId: fileId,
+                images: imageUrl ? [imageUrl] : [],
                 createdAt: new Date(),
             }
 
-            await addDoc(collection(db, "available-kits"), kitData)
+            if (isEditing && editingId) {
+                // Update existing kit
+                await updateDoc(doc(db, "available-kits", editingId), kitData)
+                alert("Kit updated successfully!")
+            } else {
+                // Add new kit
+                await addDoc(collection(db, "available-kits"), kitData)
+                alert("Kit added successfully!")
+            }
 
-            alert("Kit added successfully!")
-            setFormData({
-                title: "",
-                price: "",
-                originalPrice: "",
-                image: "",
-                description: "",
-                category: "",
-                difficulty: "",
-                estimatedTime: "",
-                rating: 4.5,
-                reviews: 0,
-                components: [],
-                fullDescription: "",
-                features: [],
-                images: [],
-            })
+            resetForm()
             setShowForm(false)
+            fetchKits()
         } catch (error) {
-            console.error("Error adding kit:", error)
-            alert("Failed to add kit")
+            console.error("Error saving kit:", error)
+            alert(isEditing ? "Failed to update kit" : "Failed to add kit")
         } finally {
             setLoading(false)
+            setIsUploading(false)
         }
+    }
+
+    const resetForm = () => {
+        setFormData({
+            title: "",
+            price: "",
+            originalPrice: "",
+            image: "",
+            description: "",
+            category: "",
+            difficulty: "",
+            estimatedTime: "",
+            rating: 4.5,
+            reviews: 0,
+            components: [],
+            fullDescription: "",
+            features: [],
+            images: [],
+            fileId: "",
+        })
+        setImageUploadedData(null)
+        setPreview(null)
+        setIsEditing(false)
+        setEditingId(null)
+    }
+
+    const handleEdit = (kit) => {
+        setFormData({
+            title: kit.title || "",
+            price: kit.price?.toString() || "",
+            originalPrice: kit.originalPrice?.toString() || "",
+            image: kit.image || "",
+            description: kit.description || "",
+            category: kit.category || "",
+            difficulty: kit.difficulty || "",
+            estimatedTime: kit.estimatedTime || "",
+            rating: kit.rating || 4.5,
+            reviews: kit.reviews || 0,
+            components: kit.components || [],
+            fullDescription: kit.fullDescription || "",
+            features: kit.features || [],
+            images: kit.images || [],
+            fileId: kit.fileId || "",
+        })
+        setPreview(kit.image)
+        setIsEditing(true)
+        setEditingId(kit.id)
+        setShowForm(true)
+        setShowPreview(false)
+    }
+
+    const handleDelete = async (kitId, fileId) => {
+        if (window.confirm("Are you sure you want to delete this kit?")) {
+            try {
+                setLoading(true)
+
+                // Delete from Firestore
+                await deleteDoc(doc(db, "available-kits", kitId))
+
+                // Delete image from ImageKit if fileId exists
+                if (fileId) {
+                    try {
+                        await fetch("http://localhost:4000/deleteImage", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ fileId: fileId }),
+                        })
+                    } catch (imageError) {
+                        console.error("Error deleting image from ImageKit:", imageError)
+                        // Continue even if image deletion fails
+                    }
+                }
+
+                // Update local state
+                setKits(kits.filter((kit) => kit.id !== kitId))
+                alert("Kit deleted successfully!")
+            } catch (error) {
+                console.error("Error deleting kit:", error)
+                alert("Failed to delete kit")
+            } finally {
+                setLoading(false)
+            }
+        }
+    }
+
+    const cancelForm = () => {
+        resetForm()
+        setShowForm(false)
+        setShowPreview(true)
     }
 
     const getDifficultyColor = (difficulty) => {
@@ -196,7 +329,7 @@ const AvailableKitsAdmin = () => {
                     <div className="admin-page-form-header">
                         <h3 className="admin-page-form-title">
                             <span className="admin-page-form-icon">🔧</span>
-                            Add New Electronics Kit
+                            {isEditing ? "Edit Electronics Kit" : "Add New Electronics Kit"}
                         </h3>
                     </div>
 
@@ -286,15 +419,35 @@ const AvailableKitsAdmin = () => {
                         </div>
 
                         <div className="admin-page-form-group">
-                            <label>Image URL *</label>
-                            <input
-                                type="url"
-                                value={formData.image}
-                                onChange={(e) => handleInputChange("image", e.target.value)}
-                                required
-                                placeholder="https://example.com/image.jpg"
-                                className="admin-page-form-input"
-                            />
+                            <label>Kit Image *</label>
+                            <div className="admin-image-upload-container">
+                                <div className="admin-image-preview-container">
+                                    {preview ? (
+                                        <img src={preview || "/placeholder.svg"} alt="Preview" className="admin-image-preview" />
+                                    ) : (
+                                        <div className="admin-image-upload-placeholder">
+                                            <Upload />
+                                        </div>
+                                    )}
+                                </div>
+                                <IKContext publicKey={publicKey} urlEndpoint={urlEndpoint} authenticator={authenticator}>
+                                    <p>Upload an image</p>
+                                    <IKUpload
+                                        fileName="kit-image.png"
+                                        onError={(error) => {
+                                            console.error("Error uploading image: ", error)
+                                            toast.error("Please Turn on the server...!")
+                                            alert("Error uploading image: Network Error\nPlease kindly turn on the server...!")
+                                        }}
+                                        onSuccess={(data) => {
+                                            setImageUploadedData(data)
+                                            setPreview(data.url)
+                                            console.log("Image uploaded successfully: ", data)
+                                        }}
+                                        onChange={handleImageChange}
+                                    />
+                                </IKContext>
+                            </div>
                         </div>
 
                         <div className="admin-page-form-group">
@@ -408,15 +561,11 @@ const AvailableKitsAdmin = () => {
                         </div>
 
                         <div className="admin-page-form-actions">
-                            <button
-                                type="button"
-                                onClick={() => setShowForm(false)}
-                                className="admin-page-btn admin-page-btn-secondary"
-                            >
+                            <button type="button" onClick={cancelForm} className="admin-page-btn admin-page-btn-secondary">
                                 Cancel
                             </button>
                             <button type="submit" disabled={loading} className="admin-page-btn admin-page-btn-primary">
-                                {loading ? "Adding Kit..." : "Add Kit"}
+                                {loading ? (isEditing ? "Updating Kit..." : "Adding Kit...") : isEditing ? "Update Kit" : "Add Kit"}
                             </button>
                         </div>
                     </form>
@@ -460,7 +609,14 @@ const AvailableKitsAdmin = () => {
                                     <div className="kit-card">
                                         <div className="kit-card-header">
                                             <div className="kit-image-container">
-                                                <img src={kit.image || "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg"} alt={kit.title} className="kit-image" />
+                                                <img
+                                                    src={
+                                                        kit.image ||
+                                                        "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg"
+                                                    }
+                                                    alt={kit.title}
+                                                    className="kit-image"
+                                                />
 
                                                 {/* Overlays */}
                                                 <div className="kit-image-overlay"></div>
@@ -468,7 +624,10 @@ const AvailableKitsAdmin = () => {
                                                 {/* Badges */}
                                                 <div className="kit-category-badge">{kit.category}</div>
 
-                                                <div className="kit-difficulty-badge" style={{ backgroundColor: getDifficultyColor(kit.difficulty) }}>
+                                                <div
+                                                    className="kit-difficulty-badge"
+                                                    style={{ backgroundColor: getDifficultyColor(kit.difficulty) }}
+                                                >
                                                     {kit.difficulty}
                                                 </div>
 
@@ -489,6 +648,28 @@ const AvailableKitsAdmin = () => {
                                                         <span className="users-icon">👥</span>
                                                         {kit.reviews}
                                                     </div>
+                                                </div>
+
+                                                {/* Admin Actions */}
+                                                <div className="kit-admin-actions">
+                                                    <button
+                                                        className="kit-edit-btn"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            handleEdit(kit)
+                                                        }}
+                                                    >
+                                                        <Edit size={16} />
+                                                    </button>
+                                                    <button
+                                                        className="kit-delete-btn"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            handleDelete(kit.id, kit.fileId)
+                                                        }}
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -531,7 +712,9 @@ const AvailableKitsAdmin = () => {
                                 </div>
                             ))}
 
-                            {selectedKit && <KitDetailModal kit={selectedKit} isOpen={!!selectedKit} onClose={() => setSelectedKit(null)} />}
+                            {selectedKit && (
+                                <KitDetailModal kit={selectedKit} isOpen={!!selectedKit} onClose={() => setSelectedKit(null)} />
+                            )}
                         </div>
                     )}
                 </div>

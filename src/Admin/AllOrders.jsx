@@ -6,6 +6,57 @@ import { db } from "../firebase"
 import OrderDetailModal from "./OrderDetailModal"
 import "./AllOrders.css"
 
+// Helper to build a URL-encoded email body for each order
+const buildEmailBody = (order) => {
+    const {
+        orderId,
+        status,
+        customerDetails = {},
+        items = [],
+        totalAmount,
+        orderDate,
+        orderTime,
+    } = order
+
+    let body = `Hi ${customerDetails.name || ""},%0A%0A`
+    body += `Your order *#${orderId}* is currently: *${status || "Pending"}*.%0A%0A`
+    body += `Order Details:%0A`
+    body += `– Date: ${orderDate || ""} ${orderTime || ""}%0A`
+    body += `– Total Amount: ₹${(totalAmount || 0).toFixed(2)}%0A%0A`
+
+    if (items.length > 0) {
+        body += `Items:%0A`
+        items.forEach((itm, idx) => {
+            const name = itm.name || itm.productName || "Item"
+            const qty = itm.quantity || itm.qty || 1
+            const price =
+                itm.price?.toFixed(2) ||
+                itm.totalPrice?.toFixed(2) ||
+                "0.00"
+            body += `${idx + 1}. ${name} – Qty: ${qty}, Price: ₹${price}%0A`
+        })
+        body += `%0A`
+    }
+
+    body += `You can view your order history here:%0A`
+    body += `https://kitees.vercel.app/myorders%0A%0A`
+    body += `Thank you for shopping with Kitees!%0A`
+    body += `— The Kitees Team`
+
+    return body
+}
+
+const buildGmailComposeURL = (order) => {
+    const toEmail = order.customerDetails?.email || ""
+    const subject = encodeURIComponent(`Order ${order.orderId} Update`)
+    const body = buildEmailBody(order)
+
+    // Gmail compose URL: view=cm (compose), fs=1 (full‐screen), prefill to, subject, and body
+    return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+        toEmail
+    )}&su=${subject}&body=${body}`
+}
+
 const AllOrders = () => {
     const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)
@@ -85,12 +136,21 @@ const AllOrders = () => {
     const filteredOrders = orders
         .filter((order) => {
             const matchesSearch =
-                order.orderId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                order.customerDetails?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                order.customerDetails?.email?.toLowerCase().includes(searchTerm.toLowerCase())
+                order.orderId
+                    ?.toLowerCase()
+                    .includes(searchTerm.toLowerCase()) ||
+                order.customerDetails?.name
+                    ?.toLowerCase()
+                    .includes(searchTerm.toLowerCase()) ||
+                order.customerDetails?.email
+                    ?.toLowerCase()
+                    .includes(searchTerm.toLowerCase())
 
             const matchesStatus =
-                statusFilter === "all" || (order.status && order.status.toLowerCase() === statusFilter.toLowerCase())
+                statusFilter === "all" ||
+                (order.status &&
+                    order.status.toLowerCase() ===
+                    statusFilter.toLowerCase())
 
             return matchesSearch && matchesStatus
         })
@@ -122,19 +182,36 @@ const AllOrders = () => {
         <div className="admin-page-all-orders">
             <div className="admin-page-orders-header">
                 <div className="admin-page-header-info">
-                    <h2 className="admin-page-orders-title">All Orders Management</h2>
-                    <p className="admin-page-orders-subtitle">Monitor and manage all customer orders from one place</p>
+                    <h2 className="admin-page-orders-title">
+                        All Orders Management
+                    </h2>
+                    <p className="admin-page-orders-subtitle">
+                        Monitor and manage all customer orders from one place
+                    </p>
                 </div>
                 <div className="admin-page-orders-stats">
                     <div className="admin-page-stat-item">
-                        <span className="admin-page-stat-number">{orders.length}</span>
-                        <span className="admin-page-stat-label">Total Orders</span>
+                        <span className="admin-page-stat-number">
+                            {orders.length}
+                        </span>
+                        <span className="admin-page-stat-label">
+                            Total Orders
+                        </span>
                     </div>
                     <div className="admin-page-stat-item">
                         <span className="admin-page-stat-number">
-                            ₹{orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0).toLocaleString()}
+                            ₹
+                            {orders
+                                .reduce(
+                                    (sum, order) =>
+                                        sum + (order.totalAmount || 0),
+                                    0
+                                )
+                                .toLocaleString()}
                         </span>
-                        <span className="admin-page-stat-label">Total Revenue</span>
+                        <span className="admin-page-stat-label">
+                            Total Revenue
+                        </span>
                     </div>
                 </div>
             </div>
@@ -172,15 +249,26 @@ const AllOrders = () => {
 
                     <div className="admin-page-filter-group">
                         <label>Sort by:</label>
-                        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="admin-page-filter-select">
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="admin-page-filter-select"
+                        >
                             <option value="newest">Newest First</option>
                             <option value="oldest">Oldest First</option>
-                            <option value="amount-high">Amount: High to Low</option>
-                            <option value="amount-low">Amount: Low to High</option>
+                            <option value="amount-high">
+                                Amount: High to Low
+                            </option>
+                            <option value="amount-low">
+                                Amount: Low to High
+                            </option>
                         </select>
                     </div>
 
-                    <button className="admin-page-refresh-btn" onClick={fetchAllOrders}>
+                    <button
+                        className="admin-page-refresh-btn"
+                        onClick={fetchAllOrders}
+                    >
                         🔄 Refresh
                     </button>
                 </div>
@@ -208,27 +296,33 @@ const AllOrders = () => {
                                         className="admin-page-user-row"
                                         style={{ "--delay": `${idx * 0.05}s` }}
                                     >
-                                        {/* Order ID as “user” cell */}
+                                        {/* Order ID */}
                                         <td className="admin-page-user-info">
-                                            <div className="admin-page-user-avatar">📦</div>
+                                            <div className="admin-page-user-avatar">
+                                                📦
+                                            </div>
                                             <div className="admin-page-user-details">
-                                                <div className="admin-page-user-name">#{order.orderId}</div>
+                                                <div className="admin-page-user-name">
+                                                    #{order.orderId}
+                                                </div>
                                             </div>
                                         </td>
 
-                                        {/* Customer as “contact” cell */}
+                                        {/* Customer */}
                                         <td>
                                             <div>
                                                 <div className="admin-page-email">
-                                                    {order.customerDetails?.name || "N/A"}
+                                                    {order.customerDetails?.name ||
+                                                        "N/A"}
                                                 </div>
                                                 <div className="admin-page-phone">
-                                                    {order.customerDetails?.email || "N/A"}
+                                                    {order.customerDetails?.email ||
+                                                        "N/A"}
                                                 </div>
                                             </div>
                                         </td>
 
-                                        {/* Date & Time as “joined” cell */}
+                                        {/* Date & Time */}
                                         <td className="admin-page-join-date">
                                             <div>{order.orderDate}</div>
                                             <div>{order.orderTime}</div>
@@ -237,14 +331,19 @@ const AllOrders = () => {
                                         {/* Items */}
                                         <td>
                                             <div className="admin-page-email">
-                                                {order.totalQuantity || order.items?.length || 0} items
+                                                {order.totalQuantity ||
+                                                    order.items?.length ||
+                                                    0}{" "}
+                                                items
                                             </div>
                                         </td>
 
                                         {/* Amount */}
                                         <td>
                                             <div className="admin-page-email">
-                                                ₹{order.totalAmount?.toFixed(2) || "0.00"}
+                                                ₹
+                                                {order.totalAmount?.toFixed(2) ||
+                                                    "0.00"}
                                             </div>
                                         </td>
 
@@ -253,7 +352,9 @@ const AllOrders = () => {
                                             <div
                                                 className="admin-page-status-badge"
                                                 style={{
-                                                    backgroundColor: `${getStatusColor(order.status)}20`,
+                                                    backgroundColor: `${getStatusColor(
+                                                        order.status
+                                                    )}20`,
                                                     color: getStatusColor(order.status),
                                                     borderColor: getStatusColor(order.status),
                                                 }}
@@ -268,7 +369,11 @@ const AllOrders = () => {
                                         </td>
 
                                         {/* Actions */}
-                                        <td className="admin-page-user-actions" style={{ justifyContent: "left" }}>
+                                        <td
+                                            className="admin-page-user-actions"
+                                            style={{ justifyContent: "left" }}
+                                        >
+                                            {/* View details */}
                                             <button
                                                 className="admin-page-action-btn view"
                                                 onClick={() => setSelectedOrder(order)}
@@ -276,14 +381,30 @@ const AllOrders = () => {
                                             >
                                                 👁️
                                             </button>
+
+                                            {/* Send email via Gmail compose */}
+                                            <a
+                                                className="admin-page-action-btn view"
+                                                href={buildGmailComposeURL(order)}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                title="Send order update via Gmail"
+                                            >
+                                                ✉️
+                                            </a>
                                         </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="7" className="admin-page-no-users">
+                                    <td
+                                        colSpan="7"
+                                        className="admin-page-no-users"
+                                    >
                                         <div className="admin-page-empty-state">
-                                            <div className="admin-page-user-avatar">📦</div>
+                                            <div className="admin-page-user-avatar">
+                                                📦
+                                            </div>
                                             <h3>No Orders Found</h3>
                                             <p>
                                                 {orders.length === 0
@@ -299,10 +420,12 @@ const AllOrders = () => {
                 </div>
             </div>
 
-
-
             {selectedOrder && (
-                <OrderDetailModal order={selectedOrder} isOpen={!!selectedOrder} onClose={() => setSelectedOrder(null)} />
+                <OrderDetailModal
+                    order={selectedOrder}
+                    isOpen={!!selectedOrder}
+                    onClose={() => setSelectedOrder(null)}
+                />
             )}
         </div>
     )

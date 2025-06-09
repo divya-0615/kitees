@@ -1,9 +1,21 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { collection, addDoc, getDocs, query, orderBy } from "firebase/firestore"
+import {
+    collection,
+    addDoc,
+    getDocs,
+    query,
+    orderBy,
+    deleteDoc,
+    doc,
+    updateDoc,
+} from "firebase/firestore"
 import { db } from "../firebase"
 import "./CustomKits.css"
+import { IKContext, IKUpload } from "imagekitio-react"
+import { Upload, Trash2, Edit } from "lucide-react"
+import toast from "react-hot-toast"
 
 const CustomKitsAdmin = () => {
     const [showForm, setShowForm] = useState(false)
@@ -11,6 +23,17 @@ const CustomKitsAdmin = () => {
     const [components, setComponents] = useState([])
     const [loading, setLoading] = useState(false)
     const [searchTerm, setSearchTerm] = useState("")
+    const [isEditing, setIsEditing] = useState(false)
+    const [editingId, setEditingId] = useState(null)
+    const [imageUploadedData, setImageUploadedData] = useState(null)
+    const [preview, setPreview] = useState(null)
+    const [isUploading, setIsUploading] = useState(false)
+
+    // const urlEndpoint = "https://ik.imagekit.io/akhil8605unicore/"
+    // const publicKey = "public_I0GmeI/LmzQrV/AIWLepSwXKzk4="
+
+    const urlEndpoint = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT
+    const publicKey = process.env.REACT_APP_IMAGEKIT_PUBLIC_KEY
 
     const [formData, setFormData] = useState({
         title: "",
@@ -21,113 +44,159 @@ const CustomKitsAdmin = () => {
         rating: 4.5,
         inStock: true,
         specifications: [],
+        fileId: "",
     })
-
     const [specificationInput, setSpecificationInput] = useState("")
 
+    // Authenticator for ImageKit upload requests
+    const authenticator = async () => {
+        const res = await fetch("http://localhost:4000/auth")
+        if (!res.ok) throw new Error("Auth failed")
+        return await res.json()
+    }
+
     useEffect(() => {
-        if (showPreview) {
-            fetchComponents()
-        }
+        if (showPreview) fetchComponents()
     }, [showPreview])
 
     const fetchComponents = async () => {
-        try {
-            setLoading(true)
-            const componentsRef = collection(db, "custom-kit-components")
-            const q = query(componentsRef, orderBy("createdAt", "desc"))
-            const querySnapshot = await getDocs(q)
-
-            const fetchedComponents = []
-            querySnapshot.forEach((doc) => {
-                fetchedComponents.push({
-                    id: doc.id,
-                    ...doc.data(),
-                })
-            })
-
-            setComponents(fetchedComponents)
-        } catch (error) {
-            console.error("Error fetching components:", error)
-        } finally {
-            setLoading(false)
-        }
+        setLoading(true)
+        const ref = collection(db, "custom-kit-components")
+        const q = query(ref, orderBy("createdAt", "desc"))
+        const snap = await getDocs(q)
+        const data = []
+        snap.forEach(d => data.push({ id: d.id, ...d.data() }))
+        setComponents(data)
+        setLoading(false)
     }
 
-    const handleInputChange = (field, value) => {
-        setFormData((prev) => ({ ...prev, [field]: value }))
-    }
+    const handleInputChange = (field, value) =>
+        setFormData(prev => ({ ...prev, [field]: value }))
 
     const addSpecification = () => {
-        if (specificationInput.trim()) {
-            setFormData((prev) => ({
-                ...prev,
-                specifications: [...prev.specifications, specificationInput.trim()],
-            }))
-            setSpecificationInput("")
-        }
-    }
-
-    const removeSpecification = (index) => {
-        setFormData((prev) => ({
+        if (!specificationInput.trim()) return
+        setFormData(prev => ({
             ...prev,
-            specifications: prev.specifications.filter((_, i) => i !== index),
+            specifications: [...prev.specifications, specificationInput.trim()],
         }))
+        setSpecificationInput("")
     }
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-        try {
-            setLoading(true)
+    const removeSpecification = i =>
+        setFormData(prev => ({
+            ...prev,
+            specifications: prev.specifications.filter((_, idx) => idx !== i),
+        }))
 
-            const componentData = {
+    const handleImageChange = e => {
+        const file = e.target.files?.[0]
+        if (!file) return
+        const reader = new FileReader()
+        reader.onloadend = () => setPreview(reader.result)
+        reader.readAsDataURL(file)
+    }
+
+    const resetForm = () => {
+        setFormData({
+            title: "",
+            price: "",
+            image: "",
+            description: "",
+            category: "",
+            rating: 4.5,
+            inStock: true,
+            specifications: [],
+            fileId: "",
+        })
+        setImageUploadedData(null)
+        setPreview(null)
+        setIsEditing(false)
+        setEditingId(null)
+    }
+
+    const handleSubmit = async e => {
+        e.preventDefault()
+        setLoading(true)
+        setIsUploading(true)
+
+        try {
+            const imageUrl = imageUploadedData ? imageUploadedData.url : formData.image
+            const fileId = imageUploadedData ? imageUploadedData.fileId : formData.fileId
+
+            const payload = {
                 ...formData,
-                price: Number.parseFloat(formData.price),
-                rating: Number.parseFloat(formData.rating),
+                price: parseFloat(formData.price),
+                rating: parseFloat(formData.rating),
+                image: imageUrl,
+                fileId,
                 createdAt: new Date(),
             }
 
-            await addDoc(collection(db, "custom-kit-components"), componentData)
+            if (isEditing && editingId) {
+                await updateDoc(doc(db, "custom-kit-components", editingId), payload)
+                toast.success("Component updated!")
+            } else {
+                await addDoc(collection(db, "custom-kit-components"), payload)
+                toast.success("Component added!")
+            }
 
-            alert("Component added successfully!")
-            setFormData({
-                title: "",
-                price: "",
-                image: "",
-                description: "",
-                category: "",
-                rating: 4.5,
-                inStock: true,
-                specifications: [],
-            })
+            resetForm()
             setShowForm(false)
-        } catch (error) {
-            console.error("Error adding component:", error)
-            alert("Failed to add component")
+            fetchComponents()
+        } catch (err) {
+            console.error(err)
+            toast.error("Save failed")
+        } finally {
+            setLoading(false)
+            setIsUploading(false)
+        }
+    }
+
+    const handleEdit = comp => {
+        setFormData({
+            title: comp.title || "",
+            price: comp.price?.toString() || "",
+            image: comp.image || "",
+            description: comp.description || "",
+            category: comp.category || "",
+            rating: comp.rating || 4.5,
+            inStock: comp.inStock ?? true,
+            specifications: comp.specifications || [],
+            fileId: comp.fileId || "",
+        })
+        setPreview(comp.image)
+        setIsEditing(true)
+        setEditingId(comp.id)
+        setShowForm(true)
+        setShowPreview(false)
+    }
+
+    const handleDelete = async (id, fileId) => {
+        if (!window.confirm("Delete this component?")) return
+        setLoading(true)
+        try {
+            await deleteDoc(doc(db, "custom-kit-components", id))
+            if (fileId) {
+                await fetch("http://localhost:4000/deleteImage", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ fileId }),
+                })
+            }
+            setComponents(comps => comps.filter(c => c.id !== id))
+            toast.success("Deleted")
+        } catch (err) {
+            console.error(err)
+            toast.error("Delete failed")
         } finally {
             setLoading(false)
         }
     }
 
-    const filteredComponents = components.filter(
-        (component) =>
-            component.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            component.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            component.description?.toLowerCase().includes(searchTerm.toLowerCase()),
+    const filtered = components.filter(c =>
+        [c.title, c.category, c.description]
+            .some(field => field?.toLowerCase().includes(searchTerm.toLowerCase()))
     )
-
-    const getCategoryColor = (category) => {
-        const colors = {
-            Microcontroller: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
-            Prototyping: "linear-gradient(135deg, #10b981, #059669)",
-            Display: "linear-gradient(135deg, #f59e0b, #d97706)",
-            Passive: "linear-gradient(135deg, #8b5cf6, #7c3aed)",
-            Sensor: "linear-gradient(135deg, #ef4444, #dc2626)",
-            Motor: "linear-gradient(135deg, #6366f1, #4f46e5)",
-            Connectivity: "linear-gradient(135deg, #ec4899, #db2777)",
-        }
-        return colors[category] || "linear-gradient(135deg, #6b7280, #4b5563)"
-    }
 
     return (
         <div className="admin-page-custom-kits">
@@ -139,10 +208,16 @@ const CustomKitsAdmin = () => {
                     </p>
                 </div>
                 <div className="admin-page-header-actions">
-                    <button className="admin-page-add-component-btn" onClick={() => setShowForm(!showForm)}>
-                        {showForm ? "📋 Hide Form" : "➕ Add Component"}
+                    <button
+                        className="admin-page-add-component-btn"
+                        onClick={() => setShowForm(f => !f)}
+                    >
+                        {showForm ? "📋 Hide Form" : isEditing ? "✏️ Edit Component" : "➕ Add Component"}
                     </button>
-                    <button className="admin-page-preview-btn" onClick={() => setShowPreview(!showPreview)}>
+                    <button
+                        className="admin-page-preview-btn"
+                        onClick={() => setShowPreview(p => !p)}
+                    >
                         {showPreview ? "📝 Hide Preview" : "👁️ Preview Components"}
                     </button>
                 </div>
@@ -153,12 +228,11 @@ const CustomKitsAdmin = () => {
                     <div className="admin-page-form-header">
                         <h3 className="admin-page-form-title">
                             <span className="admin-page-form-icon">⚙️</span>
-                            Add New Component
+                            {isEditing ? "Edit Component" : "Add New Component"}
                         </h3>
                     </div>
 
                     <form onSubmit={handleSubmit} className="admin-page-kit-form">
-                        {/* Main fields in a grid */}
                         <div className="admin-page-form-grid">
                             <div className="admin-page-form-group">
                                 <label>Component Title *</label>
@@ -236,33 +310,58 @@ const CustomKitsAdmin = () => {
                             </div>
                         </div>
 
-                        {/* Image URL */}
+                        {/* Image Upload */}
                         <div className="admin-page-form-group">
-                            <label>Image URL *</label>
-                            <input
-                                type="url"
-                                value={formData.image}
-                                onChange={e => handleInputChange("image", e.target.value)}
-                                required
-                                placeholder="https://example.com/component-image.jpg"
-                                className="admin-page-form-input"
-                            />
+                            <label>Component Image *</label>
+                            <div className="admin-image-upload-container">
+                                <div className="admin-image-preview-container">
+                                    {preview ? (
+                                        <img
+                                            src={preview}
+                                            alt="Preview"
+                                            className="admin-image-preview"
+                                        />
+                                    ) : (
+                                        <div className="admin-image-upload-placeholder">
+                                            <Upload />
+                                        </div>
+                                    )}
+                                </div>
+                                <IKContext
+                                    publicKey={publicKey}
+                                    urlEndpoint={urlEndpoint}
+                                    authenticator={authenticator}
+                                >
+                                    <p>Upload an image</p>
+                                    <IKUpload
+                                        fileName="component-image.png"
+                                        onError={err => {
+                                            console.error(err)
+                                            toast.error("Upload error")
+                                        }}
+                                        onSuccess={data => {
+                                            setImageUploadedData(data)
+                                            setPreview(data.url)
+                                        }}
+                                        onChange={handleImageChange}
+                                    />
+                                </IKContext>
+                            </div>
                         </div>
 
-                        {/* Short Description */}
                         <div className="admin-page-form-group">
                             <label>Description *</label>
                             <textarea
                                 value={formData.description}
                                 onChange={e => handleInputChange("description", e.target.value)}
                                 required
-                                placeholder="The heart of your projects. A microcontroller board based on the ATmega328P..."
+                                placeholder="The heart of your projects..."
                                 className="admin-page-form-textarea"
                                 rows="4"
                             />
                         </div>
 
-                        {/* Specifications Section (reuses Kit’s components-section styling) */}
+                        {/* Specifications */}
                         <div className="admin-page-components-section">
                             <h4 className="admin-page-section-title">
                                 <span className="admin-page-section-icon">📋</span>
@@ -273,9 +372,11 @@ const CustomKitsAdmin = () => {
                                 <div className="admin-page-component-inputs">
                                     <input
                                         type="text"
-                                        placeholder="Add a specification (e.g., ATmega328P Processor)"
+                                        placeholder="Add a specification"
                                         value={specificationInput}
-                                        onChange={e => setSpecificationInput(e.target.value)}
+                                        onChange={e =>
+                                            setSpecificationInput(e.target.value)
+                                        }
                                         className="admin-page-form-input"
                                     />
                                     <button
@@ -306,11 +407,14 @@ const CustomKitsAdmin = () => {
                             </div>
                         </div>
 
-                        {/* Form Actions */}
                         <div className="admin-page-form-actions">
                             <button
                                 type="button"
-                                onClick={() => setShowForm(false)}
+                                onClick={() => {
+                                    resetForm()
+                                    setShowForm(false)
+                                    setShowPreview(true)
+                                }}
                                 className="admin-page-btn admin-page-btn-secondary"
                             >
                                 Cancel
@@ -320,7 +424,13 @@ const CustomKitsAdmin = () => {
                                 disabled={loading}
                                 className="admin-page-btn admin-page-btn-primary"
                             >
-                                {loading ? "Adding Component..." : "Add Component"}
+                                {loading
+                                    ? isEditing
+                                        ? "Updating..."
+                                        : "Adding..."
+                                    : isEditing
+                                        ? "Update Component"
+                                        : "Add Component"}
                             </button>
                         </div>
                     </form>
@@ -332,7 +442,7 @@ const CustomKitsAdmin = () => {
                     <div className="admin-page-preview-header">
                         <h3 className="admin-page-preview-title">
                             <span className="admin-page-preview-icon">👁️</span>
-                            Custom Kit Components Preview ({filteredComponents.length})
+                            Custom Kit Components Preview ({filtered.length})
                         </h3>
                         <div className="admin-page-preview-search">
                             <span className="admin-page-search-icon">🔍</span>
@@ -340,7 +450,7 @@ const CustomKitsAdmin = () => {
                                 type="text"
                                 placeholder="Search components..."
                                 value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onChange={e => setSearchTerm(e.target.value)}
                                 className="admin-page-search-input"
                             />
                         </div>
@@ -351,7 +461,7 @@ const CustomKitsAdmin = () => {
                             <div className="admin-page-loading-spinner"></div>
                             <p>Loading components...</p>
                         </div>
-                    ) : filteredComponents.length === 0 ? (
+                    ) : filtered.length === 0 ? (
                         <div className="admin-page-no-components">
                             <div className="admin-page-no-components-icon">⚙️</div>
                             <h4>No Components Found</h4>
@@ -363,31 +473,55 @@ const CustomKitsAdmin = () => {
                         </div>
                     ) : (
                         <div className="admin-page-components-grid">
-                            {filteredComponents.map((component, index) => (
-                                <div className="component-card-wrapper" style={{ "--delay": `${index * 0.1}s` }}>
-                                    <div
-                                        className={`component-card `}
-                                        data-component-id={component.id}
-                                    >
+                            {filtered.map((component, idx) => (
+                                <div
+                                    key={component.id}
+                                    className="component-card-wrapper"
+                                    style={{ "--delay": `${idx * 0.1}s` }}
+                                >
+                                    <div className="component-card" data-component-id={component.id}>
                                         <div className="card-header">
                                             <div className="image-container">
-                                                <img src={component.image || "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg"} alt={component.title} className="component-image" />
-
-                                                {/* Gradient overlay */}
+                                                <img
+                                                    src={
+                                                        component.image ||
+                                                        "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg"
+                                                    }
+                                                    alt={component.title}
+                                                    className="component-image"
+                                                />
                                                 <div className="image-overlay"></div>
-
-                                                {/* Category badge */}
-                                                <div className="category-badge" style={{ background: getCategoryColor(component.category) }}>
+                                                <div
+                                                    className="category-badge"
+                                                >
                                                     {component.category}
                                                 </div>
-
-                                                {/* Stock status */}
-                                                <div className="stock-badge">In Stock</div>
-
-                                                {/* Rating */}
+                                                <div className="stock-badge">
+                                                    {component.inStock ? "In Stock" : "Out of Stock"}
+                                                </div>
                                                 <div className="rating-badge">
                                                     <span className="star">⭐</span>
                                                     {component.rating}
+                                                </div>
+                                                <div className="kit-admin-actions">
+                                                    <button
+                                                        className="kit-edit-btn"
+                                                        onClick={e => {
+                                                            e.stopPropagation()
+                                                            handleEdit(component)
+                                                        }}
+                                                    >
+                                                        <Edit size={16} />
+                                                    </button>
+                                                    <button
+                                                        className="kit-delete-btn"
+                                                        onClick={e => {
+                                                            e.stopPropagation()
+                                                            handleDelete(component.id, component.fileId)
+                                                        }}
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -396,30 +530,24 @@ const CustomKitsAdmin = () => {
                                             <div className="content-inner">
                                                 <div className="title-section">
                                                     <h3 className="component-title">{component.title}</h3>
-                                                    <p className="component-description">{component.description}</p>
+                                                    <p className="component-description">
+                                                        {component.description}
+                                                    </p>
                                                 </div>
-
-                                                {/* Specifications */}
                                                 <div className="specifications">
                                                     <div className="spec-header">
-                                                        <span className="info-icon">ℹ️</span>
-                                                        Key Features:
+                                                        <span className="info-icon">ℹ️</span> Key Features:
                                                     </div>
                                                     <div className="spec-list">
-                                                        {component.specifications.slice(0, 2).map((spec, i) => (
+                                                        {component.specifications.slice(0, 2).map((sp, i) => (
                                                             <div key={i} className="spec-item">
-                                                                • {spec}
+                                                                • {sp}
                                                             </div>
                                                         ))}
                                                     </div>
                                                 </div>
-
                                                 <div className="price-rating">
                                                     <div className="price">₹{component.price}</div>
-                                                    <div className="rating">
-                                                        <span className="star">⭐</span>
-                                                        {component.rating}
-                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

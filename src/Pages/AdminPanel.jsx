@@ -102,6 +102,7 @@ const AdminDashboard = () => {
           totalRevenue,
           pendingOrders,
           recentOrders,
+          allOrders: orders, // Add this line to pass all orders to dashboard
           monthlySales,
           topProducts,
         })
@@ -123,28 +124,36 @@ const AdminDashboard = () => {
     const currentDate = new Date()
     const monthlySales = []
 
-    // Generate data for the last 6 months
-    for (let i = 5; i >= 0; i--) {
+    // Generate data for the last 12 months to support all filter options
+    for (let i = 11; i >= 0; i--) {
       const month = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1)
       const monthName = months[month.getMonth()]
+      const year = month.getFullYear()
 
-      // Filter orders for this month
+      // Filter orders for this month and year
       const monthOrders = orders.filter((order) => {
+        if (!order.createdAt) return false
+
         const orderDate = order.createdAt?.toDate ? order.createdAt.toDate() : new Date(order.createdAt)
-        return orderDate.getMonth() === month.getMonth() && orderDate.getFullYear() === month.getFullYear()
+        return orderDate.getMonth() === month.getMonth() && orderDate.getFullYear() === year
       })
 
       // Calculate total revenue for this month
-      const revenue = monthOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0)
+      const revenue = monthOrders.reduce((sum, order) => {
+        return sum + (order.totalAmount || 0)
+      }, 0)
 
       monthlySales.push({
         name: monthName,
         revenue: revenue,
         orders: monthOrders.length,
+        month: month.getMonth(),
+        year: year,
       })
     }
 
-    return monthlySales
+    // Return the last 6 months by default (will be filtered in the Dashboard component)
+    return monthlySales.slice(-6)
   }
 
   // Get top products

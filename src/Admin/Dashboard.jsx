@@ -5,14 +5,13 @@ import "./Dashboard.css"
 import {
     BarChart,
     Bar,
+    LineChart,
+    Line,
     XAxis,
     YAxis,
     CartesianGrid,
     Tooltip,
     ResponsiveContainer,
-    PieChart,
-    Pie,
-    Cell,
     Legend,
 } from "recharts"
 import { ArrowUp, ArrowDown, Package, Users, DollarSign, Clock, TrendingUp } from "lucide-react"
@@ -24,6 +23,8 @@ const DashboardOverview = ({ data, loading }) => {
         totalRevenue: 0,
         pendingOrders: 0,
     })
+    const [timeFilter, setTimeFilter] = useState("6months")
+    const [filteredSalesData, setFilteredSalesData] = useState([])
 
     useEffect(() => {
         // Animate numbers on load
@@ -45,8 +46,63 @@ const DashboardOverview = ({ data, loading }) => {
             animateNumber("totalUsers", data.totalUsers)
             animateNumber("totalRevenue", data.totalRevenue)
             animateNumber("pendingOrders", data.pendingOrders)
+
+            // Filter sales data based on selected time period
+            filterSalesData(timeFilter)
         }
-    }, [data, loading])
+    }, [data, loading, timeFilter])
+
+    // Function to filter sales data based on time period
+    const filterSalesData = (filter) => {
+        if (!data?.monthlySales) return
+
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        const currentDate = new Date()
+        const currentMonth = currentDate.getMonth()
+
+        let filteredData = []
+
+        switch (filter) {
+            case "3months":
+                // Last 3 months
+                for (let i = 2; i >= 0; i--) {
+                    const monthIndex = (currentMonth - i + 12) % 12
+                    const monthData = data.monthlySales.find((item) => item.name === months[monthIndex])
+                    if (monthData) {
+                        filteredData.push(monthData)
+                    } else {
+                        filteredData.push({
+                            name: months[monthIndex],
+                            revenue: 0,
+                            orders: 0,
+                        })
+                    }
+                }
+                break
+            case "1year":
+                // Full year (Jan to Dec)
+                for (let i = 0; i < 12; i++) {
+                    const monthData = data.monthlySales.find((item) => item.name === months[i])
+                    if (monthData) {
+                        filteredData.push(monthData)
+                    } else {
+                        filteredData.push({
+                            name: months[i],
+                            revenue: 0,
+                            orders: 0,
+                        })
+                    }
+                }
+                break
+            case "6months":
+            default:
+                // Last 6 months (default)
+                filteredData = [...data.monthlySales]
+                break
+        }
+
+        setFilteredSalesData(filteredData)
+    }
 
     const statsCards = [
         {
@@ -94,6 +150,48 @@ const DashboardOverview = ({ data, loading }) => {
         { name: "Display", value: 15 },
         { name: "Sensors", value: 5 },
     ]
+
+    // Replace the generateCurrentMonthData function with this:
+    const generateCurrentMonthData = () => {
+        if (!data?.recentOrders) return []
+
+        const currentDate = new Date()
+        const currentYear = currentDate.getFullYear()
+        const currentMonth = currentDate.getMonth()
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
+        const currentDay = Math.min(currentDate.getDate(), daysInMonth)
+
+        // Initialize daily data array
+        const dailyData = []
+        for (let i = 1; i <= currentDay; i++) {
+            dailyData.push({
+                day: i,
+                sales: 0,
+                orders: 0,
+            })
+        }
+
+        // Process all orders to get daily sales for current month
+        const allOrders = data.allOrders || data.recentOrders || []
+
+        allOrders.forEach((order) => {
+            const orderDate = order.createdAt?.toDate ? order.createdAt.toDate() : new Date(order.createdAt)
+
+            // Check if order is from current month and year
+            if (orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear) {
+                const dayOfMonth = orderDate.getDate()
+
+                // Find the corresponding day in our data array
+                const dayIndex = dailyData.findIndex((item) => item.day === dayOfMonth)
+                if (dayIndex !== -1) {
+                    dailyData[dayIndex].sales += order.totalAmount || 0
+                    dailyData[dayIndex].orders += 1
+                }
+            }
+        })
+
+        return dailyData
+    }
 
     if (loading) {
         return (
@@ -146,16 +244,20 @@ const DashboardOverview = ({ data, loading }) => {
                     <div className="admin-page-chart-header">
                         <h3 className="admin-page-chart-title">Monthly Sales</h3>
                         <div className="admin-page-chart-actions">
-                            <select className="admin-page-chart-select">
-                                <option value="6months">Last 6 Months</option>
+                            <select
+                                className="admin-page-chart-select"
+                                value={timeFilter}
+                                onChange={(e) => setTimeFilter(e.target.value)}
+                            >
                                 <option value="3months">Last 3 Months</option>
-                                <option value="1year">Last Year</option>
+                                <option value="6months">Last 6 Months</option>
+                                <option value="1year">Full Year</option>
                             </select>
                         </div>
                     </div>
                     <div className="admin-page-chart-content">
                         <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={data.monthlySales || []}>
+                            <BarChart data={filteredSalesData || []}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} />
                                 <YAxis axisLine={false} tickLine={false} />
@@ -166,6 +268,10 @@ const DashboardOverview = ({ data, loading }) => {
                                         borderRadius: "8px",
                                         boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                                     }}
+                                    formatter={(value, name) => [
+                                        name === "revenue" ? `₹${value.toLocaleString()}` : value,
+                                        name = "Revenue",
+                                    ]}
                                 />
                                 <Bar dataKey="revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                             </BarChart>
@@ -173,29 +279,17 @@ const DashboardOverview = ({ data, loading }) => {
                     </div>
                 </div>
 
-                {/* Product Categories Chart */}
+                {/* Current Month Sales Line Chart */}
                 <div className="admin-page-chart-card">
                     <div className="admin-page-chart-header">
-                        <h3 className="admin-page-chart-title">Product Categories</h3>
+                        <h3 className="admin-page-chart-title">Current Month Daily Sales</h3>
                     </div>
                     <div className="admin-page-chart-content">
                         <ResponsiveContainer width="100%" height={300}>
-                            <PieChart>
-                                <Pie
-                                    data={categoryData}
-                                    cx="50%"
-                                    cy="50%"
-                                    labelLine={false}
-                                    outerRadius={100}
-                                    fill="#8884d8"
-                                    dataKey="value"
-                                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                >
-                                    {categoryData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <Legend layout="vertical" verticalAlign="middle" align="right" />
+                            <LineChart data={generateCurrentMonthData()} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                <XAxis dataKey="day" axisLine={false} tickLine={false} />
+                                <YAxis axisLine={false} tickLine={false} />
                                 <Tooltip
                                     contentStyle={{
                                         backgroundColor: "#fff",
@@ -203,8 +297,29 @@ const DashboardOverview = ({ data, loading }) => {
                                         borderRadius: "8px",
                                         boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                                     }}
+                                    formatter={(value, name) => [
+                                        name === "sales" ? `₹${value.toLocaleString()}` : value,
+                                        name === "sales" ? "Sales Amount" : "Orders Count",
+                                    ]}
                                 />
-                            </PieChart>
+                                <Legend />
+                                <Line
+                                    type="monotone"
+                                    dataKey="sales"
+                                    stroke="#10b981"
+                                    strokeWidth={2}
+                                    dot={{ r: 4 }}
+                                    activeDot={{ r: 6 }}
+                                />
+                                <Line
+                                    type="monotone"
+                                    dataKey="orders"
+                                    stroke="#3b82f6"
+                                    strokeWidth={2}
+                                    dot={{ r: 4 }}
+                                    activeDot={{ r: 6 }}
+                                />
+                            </LineChart>
                         </ResponsiveContainer>
                     </div>
                 </div>

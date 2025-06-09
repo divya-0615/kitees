@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useCart } from "../contexts/CartContext"
 import "./ProjectDetailModal.css"
 import { toast } from "react-hot-toast"
+
 const ProjectDetailModal = ({ project, isOpen, onClose }) => {
   const { addToCart } = useCart()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -19,7 +20,7 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
       image: project.images[0],
       type: "project",
     })
-    toast.success(`${project.title} is Added to cart sucessfully...!`, {
+    toast.success(`${project.title} is Added to cart successfully!`, {
       duration: 2500,
       position: "top-center",
       style: {
@@ -30,8 +31,8 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
         borderRadius: "8px",
         marginTop: "20px",
       },
-      reveserOrder: false,
-    });
+      reverseOrder: false,
+    })
     onClose()
   }
 
@@ -56,7 +57,6 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
     }
   }
 
-  const totalComponentsPrice = project.components.reduce((sum, comp) => sum + comp.price * comp.quantity, 0)
 
   return (
     <div className="mini-projects-modal-modal-overlay" onClick={onClose}>
@@ -65,8 +65,8 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
           <h2 className="mini-projects-modal-modal-title">{project.title}</h2>
           <button className="mini-projects-modal-modal-close" onClick={onClose}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         </div>
@@ -82,23 +82,27 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
                   className="mini-projects-modal-modal-image"
                 />
 
-                {/* Navigation Buttons */}
                 {project.images.length > 1 && (
                   <>
-                    <button className="mini-projects-modal-nav-btn mini-projects-modal-prev-btn" onClick={prevImage}>
+                    <button
+                      className="mini-projects-modal-nav-btn mini-projects-modal-prev-btn"
+                      onClick={prevImage}
+                    >
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="15,18 9,12 15,6"></polyline>
+                        <polyline points="15,18 9,12 15,6" />
                       </svg>
                     </button>
-                    <button className="mini-projects-modal-nav-btn mini-projects-modal-next-btn" onClick={nextImage}>
+                    <button
+                      className="mini-projects-modal-nav-btn mini-projects-modal-next-btn"
+                      onClick={nextImage}
+                    >
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="9,18 15,12 9,6"></polyline>
+                        <polyline points="9,18 15,12 9,6" />
                       </svg>
                     </button>
                   </>
                 )}
 
-                {/* Image Indicators */}
                 {project.images.length > 1 && (
                   <div className="mini-projects-modal-image-indicators">
                     {project.images.map((_, index) => (
@@ -111,7 +115,6 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
                   </div>
                 )}
 
-                {/* Badges */}
                 <div
                   className="mini-projects-modal-difficulty-badge-modal"
                   style={{ backgroundColor: getDifficultyColor(project.difficulty) }}
@@ -143,7 +146,7 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
                   <div className="mini-projects-modal-stat-icon">👥</div>
                   <div className="mini-projects-modal-stat-content">
                     <div className="mini-projects-modal-stat-label">Reviews</div>
-                    <div className="mini-projects-modal-stat-value">{project.reviews}</div>
+                    <div className="mini-projects-modal-stat-value">{Math.floor(Math.random() * 25) + 1}</div>
                   </div>
                 </div>
               </div>
@@ -162,8 +165,8 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
               <div className="mini-projects-modal-project-features-section">
                 <h3 className="mini-projects-modal-features-title">Project Features</h3>
                 <div className="mini-projects-modal-features-list">
-                  {project.features.map((feature, index) => (
-                    <div key={index} className="mini-projects-modal-feature-item">
+                  {project.features.map((feature, idx) => (
+                    <div key={idx} className="mini-projects-modal-feature-item">
                       <span className="mini-projects-modal-feature-icon">✅</span>
                       {feature}
                     </div>
@@ -179,36 +182,23 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
                       <tr>
                         <th>Component</th>
                         <th>Qty</th>
-                        <th>Price</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {project.components.map((component, index) => (
-                        <tr key={index}>
+                      {project.components.map((component, idx) => (
+                        <tr key={idx}>
                           <td>{component.name}</td>
                           <td>{component.quantity}</td>
-                          <td>₹{component.price.toFixed(2)}</td>
                         </tr>
                       ))}
                     </tbody>
-                    <tfoot>
-                      <tr className="mini-projects-modal-total-row">
-                        <td>
-                          <strong>Total Value</strong>
-                        </td>
-                        <td></td>
-                        <td>
-                          <strong>₹{totalComponentsPrice.toFixed(2)}</strong>
-                        </td>
-                      </tr>
-                    </tfoot>
                   </table>
                 </div>
               </div>
 
               <button onClick={handleAddToCart} className="mini-projects-modal-modal-add-btn">
                 <span className="mini-projects-modal-btn-icon">🛒</span>
-                Add to Cart - ₹{project.price}
+                Add to Cart – ₹{project.price}
               </button>
             </div>
           </div>
@@ -221,8 +211,8 @@ const ProjectDetailModal = ({ project, isOpen, onClose }) => {
             <div className="mini-projects-modal-learning-outcomes">
               <h4>What You'll Learn</h4>
               <div className="mini-projects-modal-outcomes-list">
-                {project.learningOutcomes.map((outcome, index) => (
-                  <div key={index} className="mini-projects-modal-outcome-item">
+                {project.learningOutcomes.map((outcome, idx) => (
+                  <div key={idx} className="mini-projects-modal-outcome-item">
                     <span className="mini-projects-modal-outcome-icon">🎯</span>
                     {outcome}
                   </div>
