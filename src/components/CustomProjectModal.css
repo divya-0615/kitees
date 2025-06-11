@@ -173,20 +173,6 @@
   text-align: center;
 }
 
-.section-title {
-  display: flex;
-  align-items: center;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 16px;
-}
-
-.section-icon {
-  margin-right: 8px;
-  font-size: 1.25rem;
-}
-
 .form-section {
   background: #f9fafb;
   border-radius: 12px;

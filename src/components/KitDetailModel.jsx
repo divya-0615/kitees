@@ -58,7 +58,7 @@ const KitDetailModal = ({ kit, isOpen, onClose }) => {
             {/* Details Section */}
             <div className="modal-details-section">
               <div className="modal-price-section">
-                <div className="modal-price">${kit.price}</div>
+                <div className="modal-price">₹{kit.price}</div>
                 <p className="modal-description">{kit.description}</p>
               </div>
 

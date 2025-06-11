@@ -1,111 +1,53 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
+import { collection, query, orderBy, onSnapshot } from "firebase/firestore"
+import { db } from "../firebase"
 import { useCart } from "../contexts/CartContext"
 import ComponentCard from "./ComponentCard"
 import FloatingBasket from "./FloatingBasket"
 import "./CustomizableKits.css"
 import toast from "react-hot-toast"
 
-const components = [
-    {
-        id: 1,
-        title: "Arduino Uno R3",
-        price: 25.0,
-        image: "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-        description:
-            "The heart of your projects. A microcontroller board based on the ATmega328P with 14 digital I/O pins, 6 analog inputs, and USB connection.",
-        category: "Microcontroller",
-        rating: 4.9,
-        inStock: true,
-        specifications: ["ATmega328P Processor", "14 Digital I/O Pins", "6 Analog Inputs", "USB Connection"],
-    },
-    {
-        id: 2,
-        title: "Breadboard 830 Points",
-        price: 8.0,
-        image: "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-        description:
-            "Solderless prototyping board perfect for building and testing circuits. Features 830 tie points and power rails.",
-        category: "Prototyping",
-        rating: 4.7,
-        inStock: true,
-        specifications: ["830 Tie Points", "Power Rails", "Solderless Design", "Reusable"],
-    },
-    {
-        id: 3,
-        title: "LED Assortment Pack",
-        price: 12.0,
-        image: "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-        description: "50-piece LED pack with various colors (red, green, blue, yellow, white) in 3mm and 5mm sizes.",
-        category: "Display",
-        rating: 4.8,
-        inStock: true,
-        specifications: ["50 LEDs Total", "5 Colors", "3mm & 5mm Sizes", "High Brightness"],
-    },
-    {
-        id: 4,
-        title: "Resistor Kit 600pcs",
-        price: 15.0,
-        image: "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-        description: "Complete resistor assortment from 10Ω to 1MΩ. Includes carbon film resistors with 5% tolerance.",
-        category: "Passive",
-        rating: 4.6,
-        inStock: true,
-        specifications: ["600 Resistors", "10Ω to 1MΩ Range", "5% Tolerance", "Carbon Film"],
-    },
-    {
-        id: 5,
-        title: "Ultrasonic Sensor HC-SR04",
-        price: 8.5,
-        image: "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-        description: "Distance measurement sensor with 2cm-400cm range. Perfect for robotics and automation projects.",
-        category: "Sensor",
-        rating: 4.8,
-        inStock: true,
-        specifications: ["2cm-400cm Range", "Ultrasonic Technology", "5V Operation", "High Accuracy"],
-    },
-    {
-        id: 6,
-        title: "Servo Motor SG90",
-        price: 12.0,
-        image: "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-        description: "Micro servo motor with 180° rotation. Ideal for robotics, RC projects, and precise positioning.",
-        category: "Motor",
-        rating: 4.7,
-        inStock: true,
-        specifications: ["180° Rotation", "Micro Size", "High Torque", "Precise Control"],
-    },
-    {
-        id: 7,
-        title: "Jumper Wire Set",
-        price: 10.0,
-        image: "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-        description: "120-piece jumper wire set with male-to-male, male-to-female, and female-to-female connections.",
-        category: "Connectivity",
-        rating: 4.5,
-        inStock: true,
-        specifications: ["120 Wires", "3 Connection Types", "Multiple Lengths", "Flexible Design"],
-    },
-    {
-        id: 8,
-        title: "Capacitor Assortment",
-        price: 18.0,
-        image: "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-        description: "Mixed capacitor kit including ceramic, electrolytic, and tantalum capacitors from 1pF to 1000µF.",
-        category: "Passive",
-        rating: 4.6,
-        inStock: true,
-        specifications: ["Multiple Types", "1pF to 1000µF", "High Quality", "Assorted Values"],
-    },
-]
-
 const CustomizableKits = () => {
     const { addToCart } = useCart()
+    const [components, setComponents] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
     const [animatingComponent, setAnimatingComponent] = useState(null)
     const [basketItems, setBasketItems] = useState([])
     const [showNotification, setShowNotification] = useState(false)
     const basketRef = useRef(null)
+
+    useEffect(() => {
+        // Set up real-time listener for custom kit components
+        const componentsRef = collection(db, "custom-kit-components")
+        const q = query(componentsRef, orderBy("createdAt", "desc"))
+
+        const unsubscribe = onSnapshot(
+            q,
+            (querySnapshot) => {
+                const fetchedComponents = []
+                querySnapshot.forEach((doc) => {
+                    fetchedComponents.push({
+                        id: doc.id,
+                        ...doc.data(),
+                    })
+                })
+                setComponents(fetchedComponents)
+                setLoading(false)
+                setError(null)
+            },
+            (error) => {
+                console.error("Error fetching components:", error)
+                setError("Failed to load components. Please try again later.")
+                setLoading(false)
+            },
+        )
+
+        // Cleanup subscription on unmount
+        return () => unsubscribe()
+    }, [])
 
     const handleAddToKit = (component) => {
         setAnimatingComponent(component.id)
@@ -154,6 +96,38 @@ const CustomizableKits = () => {
         }, 1500)
     }
 
+    if (loading) {
+        return (
+            <div className="customizable-kits-loading">
+                <div className="loading-spinner"></div>
+                <p>Loading components...</p>
+            </div>
+        )
+    }
+
+    if (error) {
+        return (
+            <div className="customizable-kits-error">
+                <div className="error-icon">⚠️</div>
+                <h3>Unable to Load Components</h3>
+                <p>{error}</p>
+                <button onClick={() => window.location.reload()} className="retry-btn">
+                    Try Again
+                </button>
+            </div>
+        )
+    }
+
+    if (components.length === 0) {
+        return (
+            <div className="customizable-kits-empty">
+                <div className="empty-icon">⚙️</div>
+                <h3>No Components Available</h3>
+                <p>Check back later for new components to build your custom kit!</p>
+            </div>
+        )
+    }
+
     return (
         <div className="customizable-kits">
             {/* Kit Builder Header */}
@@ -164,13 +138,11 @@ const CustomizableKits = () => {
                             <div className="customizable-kits-header-icon bounce">🛠️</div>
                             <div className="customizable-kits-header-title-wrapper">
                                 <h3 className="customizable-kits-header-title">Custom Kit Builder</h3>
-                                <p className="customizable-kits-header-subtitle">Build your perfect electronics kit by selecting individual components</p>
+                                <p className="customizable-kits-header-subtitle">
+                                    Build your perfect electronics kit by selecting individual components
+                                </p>
                             </div>
                         </div>
-                        {/* <p className="customizable-kits-header-description">
-                            Choose from our premium collection of electronics components and watch them magically float into your
-                            custom kit basket! Create exactly what you need for your next project.
-                        </p> */}
                     </div>
                 </div>
             </div>
@@ -180,7 +152,7 @@ const CustomizableKits = () => {
 
             {/* Components Grid */}
             <div className="customizable-kits-components-grid">
-                {components.map((component, index) => (
+                {components.slice(0, 3).map((component, index) => (
                     <ComponentCard
                         key={component.id}
                         component={component}
@@ -191,6 +163,26 @@ const CustomizableKits = () => {
                     />
                 ))}
             </div>
+            {components.length > 3 && (
+                <div className="see-more-section">
+                    <button
+                        className="see-more-btn"
+                        onClick={() => (window.location.href = "/customizable-kits")}
+                    >
+                        <span>See All Components ({components.length})</span>
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                        >
+                            <path d="m9 18 6-6-6-6" />
+                        </svg>
+                    </button>
+                </div>
+            )}
         </div>
     )
 }

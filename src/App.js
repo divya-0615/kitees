@@ -10,6 +10,11 @@ import MyOrders from "./Pages/MyOrders.jsx";
 import { Toaster } from "react-hot-toast";
 import ScrollToTop from "./contexts/ScrollTop.jsx";
 import AdminPanel from "./Pages/AdminPanel.jsx";
+
+import MiniProjects from "./Pages/MiniProjectsPage.jsx";
+import CustomizableKits from "./Pages/CustomKitsPage.jsx";
+import AvailableKits from "./Pages/AvailableKitsPage.jsx";
+
 function App() {
   return (
     <AuthProvider>
@@ -22,10 +27,16 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
+              <Route path="/admin" element={<AdminPanel />} />
+
+              <Route path="/mini-projects" element={<MiniProjects />} />
+              <Route path="/customizable-kits" element={<CustomizableKits />} />
+              <Route path="/available-kits" element={<AvailableKits />} />
+              
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/myorders" element={<MyOrders />} />
               
-              <Route path="/admin" element={<AdminPanel />} />
+              
             </Routes>
           </div>
         </Router>

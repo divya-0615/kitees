@@ -1,126 +1,46 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { collection, query, orderBy, onSnapshot } from "firebase/firestore"
+import { db } from "../firebase"
 import KitDetailModal from "./KitDetailModel"
 import "./AvailableKits.css"
 
-const availableKits = [
-  {
-    id: 1,
-    title: "Arduino Starter Kit Pro",
-    price: 89.99,
-    originalPrice: 129.99,
-    image: "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-    description: "Complete Arduino kit with sensors, LEDs, and components for 15+ projects",
-    category: "Microcontroller",
-    rating: 4.8,
-    reviews: 1247,
-    difficulty: "Beginner",
-    estimatedTime: "2-4 hours",
-    components: [
-      { name: "Arduino Uno R3", price: 25.0, quantity: 1 },
-      { name: "Breadboard", price: 8.0, quantity: 2 },
-      { name: "LED Assortment", price: 12.0, quantity: 1 },
-      { name: "Resistor Pack", price: 15.0, quantity: 1 },
-      { name: "Jumper Wires", price: 10.0, quantity: 1 },
-      { name: "Sensors Kit", price: 19.99, quantity: 1 },
-    ],
-    fullDescription:
-      "This comprehensive Arduino Starter Kit Pro is perfect for beginners and intermediate makers. It includes everything you need to start building amazing electronic projects. The kit comes with a genuine Arduino Uno R3, high-quality components, and detailed project guides. You'll learn programming, circuit design, and electronic prototyping through hands-on experience.",
-    features: ["15+ Project Guides", "Video Tutorials", "Online Support", "Premium Components"],
-    images: [
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-    ],
-  },
-  {
-    id: 2,
-    title: "Raspberry Pi IoT Kit",
-    price: 129.99,
-    originalPrice: 159.99,
-    image: "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-    description: "Build IoT projects with Raspberry Pi 4, sensors, and wireless modules",
-    category: "IoT",
-    rating: 4.9,
-    reviews: 892,
-    difficulty: "Intermediate",
-    estimatedTime: "3-6 hours",
-    components: [
-      { name: "Raspberry Pi 4", price: 75.0, quantity: 1 },
-      { name: "MicroSD Card 32GB", price: 15.0, quantity: 1 },
-      { name: "WiFi Module", price: 12.0, quantity: 1 },
-      { name: "Temperature Sensor", price: 8.0, quantity: 2 },
-      { name: "Camera Module", price: 19.99, quantity: 1 },
-    ],
-    fullDescription:
-      "Create connected devices and smart home solutions with this comprehensive Raspberry Pi IoT Kit. Perfect for learning Internet of Things development, home automation, and remote monitoring systems.",
-    features: ["IoT Cloud Integration", "Mobile App", "Real-time Monitoring", "Smart Home Ready"],
-    images: [
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-    ],
-  },
-  {
-    id: 3,
-    title: "Electronics Lab Kit",
-    price: 199.99,
-    originalPrice: 249.99,
-    image: "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-    description: "Professional electronics lab with oscilloscope, multimeter, and components",
-    category: "Professional",
-    rating: 4.7,
-    reviews: 456,
-    difficulty: "Advanced",
-    estimatedTime: "1-2 hours setup",
-    components: [
-      { name: "Digital Oscilloscope", price: 120.0, quantity: 1 },
-      { name: "Digital Multimeter", price: 45.0, quantity: 1 },
-      { name: "Power Supply Module", price: 25.0, quantity: 1 },
-      { name: "Component Assortment", price: 9.99, quantity: 1 },
-    ],
-    fullDescription:
-      "Set up your own electronics laboratory with this professional-grade kit. Includes precision instruments and a wide variety of components for advanced circuit analysis and design.",
-    features: ["Professional Tools", "Calibration Certificate", "Lab Manual", "Lifetime Support"],
-    images: [
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-    ],
-  },
-  {
-    id: 4,
-    title: "Robotics Starter Kit",
-    price: 159.99,
-    originalPrice: 199.99,
-    image: "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-    description: "Build and program robots with motors, sensors, and control boards",
-    category: "Robotics",
-    rating: 4.8,
-    reviews: 723,
-    difficulty: "Intermediate",
-    estimatedTime: "4-8 hours",
-    components: [
-      { name: "Robot Chassis", price: 35.0, quantity: 1 },
-      { name: "Servo Motors", price: 40.0, quantity: 4 },
-      { name: "Ultrasonic Sensor", price: 15.0, quantity: 2 },
-      { name: "Motor Driver", price: 20.0, quantity: 1 },
-      { name: "Control Board", price: 49.99, quantity: 1 },
-    ],
-    fullDescription:
-      "Enter the world of robotics with this comprehensive starter kit. Build autonomous robots, learn programming, and explore artificial intelligence concepts through hands-on projects.",
-    features: ["AI Programming", "Autonomous Navigation", "Remote Control", "Expandable Design"],
-    images: [
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg",
-    ],
-  },
-]
-
 const AvailableKits = () => {
+  const [kits, setKits] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [selectedKit, setSelectedKit] = useState(null)
+
+  useEffect(() => {
+    // Set up real-time listener for available kits
+    const kitsRef = collection(db, "available-kits")
+    const q = query(kitsRef, orderBy("createdAt", "desc"))
+
+    const unsubscribe = onSnapshot(
+      q,
+      (querySnapshot) => {
+        const fetchedKits = []
+        querySnapshot.forEach((doc) => {
+          fetchedKits.push({
+            id: doc.id,
+            ...doc.data(),
+          })
+        })
+        setKits(fetchedKits)
+        setLoading(false)
+        setError(null)
+      },
+      (error) => {
+        console.error("Error fetching kits:", error)
+        setError("Failed to load kits. Please try again later.")
+        setLoading(false)
+      },
+    )
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe()
+  }, [])
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
@@ -135,15 +55,54 @@ const AvailableKits = () => {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="available-kits-loading">
+        <div className="loading-spinner"></div>
+        <p>Loading available kits...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="available-kits-error">
+        <div className="error-icon">⚠️</div>
+        <h3>Unable to Load Kits</h3>
+        <p>{error}</p>
+        <button onClick={() => window.location.reload()} className="retry-btn">
+          Try Again
+        </button>
+      </div>
+    )
+  }
+
+  if (kits.length === 0) {
+    return (
+      <div className="available-kits-empty">
+        <div className="empty-icon">📦</div>
+        <h3>No Kits Available</h3>
+        <p>Check back later for new electronics kits!</p>
+      </div>
+    )
+  }
+
   return (
     <>
       <div className="available-kits">
-        {availableKits.map((kit, index) => (
+        {kits.slice(0, 3).map((kit, index) => (
           <div key={kit.id} className="kit-card-wrapper" style={{ "--delay": `${index * 0.1}s` }}>
             <div className="kit-card">
               <div className="kit-card-header">
                 <div className="kit-image-container">
-                  <img src={kit.image || "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg"} alt={kit.title} className="kit-image" />
+                  <img
+                    src={
+                      kit.image ||
+                      "https://t4.ftcdn.net/jpg/06/71/92/37/360_F_671923740_x0zOL3OIuUAnSF6sr7PuznCI5bQFKhI0.jpg"
+                      || "/placeholder.svg"}
+                    alt={kit.title}
+                    className="kit-image"
+                  />
 
                   {/* Overlays */}
                   <div className="kit-image-overlay"></div>
@@ -214,6 +173,20 @@ const AvailableKits = () => {
           </div>
         ))}
       </div>
+
+      {kits.length > 3 && (
+        <div className="see-more-section">
+          <button
+            className="see-more-btn"
+            onClick={() => (window.location.href = "/available-kits")}
+          >
+            <span>See All Kits ({kits.length})</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       {selectedKit && <KitDetailModal kit={selectedKit} isOpen={!!selectedKit} onClose={() => setSelectedKit(null)} />}
     </>

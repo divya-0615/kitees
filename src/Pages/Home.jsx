@@ -22,12 +22,12 @@ const HomePage = () => {
 
     const { currentUser, userData } = useAuth()
 
-    useEffect(() => {
-        if (userData.email === "kitees@gmail.com") {
-            // Redirect to admin panel if the user is an admin
-            window.location.href = "/admin"
-        }
-    }, [])
+    // useEffect(() => {
+    //     if (userData &&userData.email === "kitees@gmail.com") {
+    //         // Redirect to admin panel if the user is an admin
+    //         window.location.href = "/admin"
+    //     }
+    // }, [])
 
     return (
         <div className="homepage">

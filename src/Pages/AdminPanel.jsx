@@ -257,6 +257,7 @@ const AdminDashboard = () => {
   const handleSignOut = async () => {
     try {
       await signOut(auth)
+      window.location.href = "/"
     } catch (error) {
       console.error("Error signing out:", error)
     }
@@ -382,17 +383,21 @@ const AdminDashboard = () => {
 
         <div className="admin-page-sidebar-footer">
           <div className="admin-page-user-info">
-            <div className="admin-page-user-avatar">
-              <span className="admin-page-avatar-text">
-                <Crown size={20} />
-              </span>
-            </div>
-            {!sidebarCollapsed && (
-              <div className="admin-page-user-details">
-                <div className="admin-page-user-name">Admin</div>
-                <div className="admin-page-user-email">{user.email}</div>
+            {sidebarCollapsed && (
+              <div className="admin-page-user-avatar">
+
+                <span className="admin-page-avatar-text">
+                  <Crown size={20} />
+                </span>
+
               </div>
-            )}
+            // {/* {!sidebarCollapsed && (
+            //   <div className="admin-page-user-details">
+            //     <div className="admin-page-user-name">Admin</div>
+            //     <div className="admin-page-user-email">{user.email}</div>
+            //   </div>
+            // )} */}
+             )}
           </div>
           <button className="admin-page-signout-btn" onClick={handleSignOut} title={sidebarCollapsed ? "Sign Out" : ""}>
             <span className="admin-page-signout-icon">
