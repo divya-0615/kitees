@@ -130,13 +130,9 @@ const Header = () => {
                     {isMenuOpen && (
                         <div className="mobile-nav">
                             <nav className="mobile-nav-content">
-                                <a href="#kits" className="mobile-nav-link">
+                                <a href="/" className="mobile-nav-link">
                                     <span className="nav-icon">📦</span>
-                                    Kits
-                                </a>
-                                <a href="#projects" className="mobile-nav-link">
-                                    <span className="nav-icon">🔧</span>
-                                    Projects
+                                    Home
                                 </a>
                                 <a href="#about" className="mobile-nav-link">
                                     <span className="nav-icon">ℹ️</span>

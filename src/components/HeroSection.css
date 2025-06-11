@@ -1,5 +1,6 @@
 .hero-section {
   min-height: 100vh;
+  padding: 72px 0;
   position: relative;
   display: flex;
   align-items: center;
@@ -335,5 +336,9 @@
   .circuit-board {
     width: 300px;
     height: 300px;
+  }
+
+  .hero-visual {
+    display: none;
   }
 }

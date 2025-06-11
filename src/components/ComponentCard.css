@@ -323,7 +323,9 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .component-card {
-    margin-bottom: 20px;
+    flex: 0 0 320px;
+    min-width: 280px;
+    height: auto;
   }
 
   .card-content {

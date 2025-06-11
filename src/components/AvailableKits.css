@@ -256,8 +256,18 @@
 
 @media (max-width: 768px) {
   .available-kits {
-    grid-template-columns: 1fr;
-    gap: 24px;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 16px;
+    width: 100%;
+    padding: 16px 0;
+  }
+
+  .kit-card {
+    flex: 0 0 320px;
+    min-width: 280px;
+    height: auto;
   }
 
   .kit-image {

@@ -191,7 +191,7 @@ const MiniProjects = () => {
             ))}
           </div>
           {projects.length > 2 && (
-            <div className="see-more-section">
+            <div className="see-more-section" style={{marginTop: "0",paddingBottom: "20px"}}>
               <button className="see-more-btn" onClick={() => (window.location.href = "/mini-projects")}>
                 <span>See All Projects ({projects.length})</span>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

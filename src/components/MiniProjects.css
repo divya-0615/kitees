@@ -321,8 +321,11 @@
   }
 
   .mini-projects-section-projects-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 16px;
+    margin-bottom: 0;
   }
 
   .mini-projects-section-project-info {
@@ -341,6 +344,16 @@
 
   .mini-projects-section-custom-project-section h3 {
     font-size: 1.8rem;
+  }
+
+  .mini-projects-section-mini-projects{
+    padding: 66px 0;
+  }
+  
+  .mini-projects-section-project-card{
+    /* flex: 0 0 320px; */
+    min-width: 280px;
+    height: auto;
   }
 }
 

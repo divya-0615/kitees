@@ -150,8 +150,11 @@
   }
 
   .customizable-kits-components-grid {
-    grid-template-columns: 1fr;
-    gap: 24px;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 16px 0;
   }
 
   .customizable-kits-success-notification {
