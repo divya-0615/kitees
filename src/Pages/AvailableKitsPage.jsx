@@ -219,6 +219,7 @@ const AvailableKitsPage = () => {
                                         value={priceRange.min}
                                         onChange={(e) => setPriceRange((prev) => ({ ...prev, min: Number(e.target.value) }))}
                                         className="products-page-price-input"
+                                        style={{maxWidth: "120px",marginRight: "30px"}}
                                     />
                                     <input
                                         type="number"
@@ -226,6 +227,7 @@ const AvailableKitsPage = () => {
                                         value={priceRange.max}
                                         onChange={(e) => setPriceRange((prev) => ({ ...prev, max: Number(e.target.value) }))}
                                         className="products-page-price-input"
+                                        style={{maxWidth: "120px"}}
                                     />
                                 </div>
                             </div>
